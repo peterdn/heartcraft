@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compendium schemaVersion="0.1" id="app.heartcraft.homebrew.demo" version="4" name="Heartcraft Homebrew Demo" description="A compendium to demo homebrew content." author="Peter Nelson" url="https://heartcraft.app" license="CC BY-SA 4.0" licenseUrl="https://creativecommons.org/licenses/by-sa/4.0/">
+  <domains>
+    <domain id="shadow" name="Shadow">
+      <description>Domain of shadow that weaves darkness into weapons, instills fear in the hearts of enemies, and embraces the power of the void.</description>
+      <domainAbilities>
+        <ability id="dark_bolt">
+          <name>Dark Bolt</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>Make a Spellcast Roll against an enemy within Far range. On a success, deal d8 magic damage using your Proficiency, and the target marks a Stress.</description>
+        </ability>
+        <ability id="shadow_meld">
+          <name>Shadow Meld</name>
+          <level>1</level>
+          <recallCost>0</recallCost>
+          <description>Spend a Hope to become Hidden. You remain Hidden until you make an attack, cast a spell, or start your turn in bright light.</description>
+        </ability>
+        <ability id="shadow_suture">
+          <name>Shadow Suture</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>Spend a Hope to touch a creature within Very Close range. If they are Undead or have the Shadow domain, they clear 1d4 Hit Points. Otherwise, make a Spellcast Roll against them. On a success, deal d12 magic damage using your Proficiency.</description>
+        </ability>
+        <ability id="shadow_step">
+          <name>Shadow Step</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>Spend a Hope to teleport to a location within Far range that is in dim light or darkness.</description>
+        </ability>
+        <ability id="cloak_of_night">
+          <name>Cloak of Night</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>Spend a Hope. Until your next rest, you have advantage on Agility rolls to hide or move silently, and +1 Evasion while in dim light or darkness.</description>
+        </ability>
+        <ability id="umbral_chains">
+          <name>Umbral Chains</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Make a Spellcast Roll against a target within Far range. On a success, they are Restrained by shadowy tendrils. At the end of each of their turns, they can make a Strength Reaction Roll (14) to end the effect.</description>
+        </ability>
+        <ability id="nightmare">
+          <name>Nightmare</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Spend a Hope and target a creature within Close range. They must make a Presence Reaction Roll (15). On a failure, they take 2d8 magical damage and are Frightened of you until your next rest. While Frightened, they have disadvantage on any rolls targeting you (whether an Attack Roll or other social abilities)</description>
+        </ability>
+        <ability id="simulacrum">
+          <name>Simulacrum</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope to create a shadowy duplicate within Close range. It has your Evasion and 1 Hit Point. You can see out of its eyes and swap positions with it in an instant. It lasts until destroyed or until after your next rest.</description>
+        </ability>
+        <ability id="void_zone">
+          <name>Void Zone</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Make a Spellcast Roll (13). On a success, create a zone of magical darkness (Close radius) within Far range. Creatures inside are Blinded and must mark a Stress when they take an action while in the darkenss. You can see inside it. Lasts for 1 minute.</description>
+        </ability>
+      </domainAbilities>
+    </domain>
+
+    <domain id="duty" name="Duty">
+      <description>Domain of obligation, justice, empowering allies with unwavering support and weakening foes with the weight of their transgressions.</description>
+      <domainAbilities>
+        <ability id="guiding_words">
+          <name>Guiding Words</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>Spend a Hope to grant an ally within Far range advantage on their next Action Roll.</description>
+        </ability>
+        <ability id="admonish">
+          <name>Admonish</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>When an enemy within Far range deals damage to an ally, you can spend a Stress to immediately make a Spellcast Roll against them. On a success, they must mark a Stress.</description>
+        </ability>
+        <ability id="clear_conscience">
+          <name>Clear Conscience</name>
+          <level>1</level>
+          <recallCost>0</recallCost>
+          <description>Spend a Hope to touch an ally. They clear a number of Stress equal to your Proficiency.</description>
+        </ability>
+        <ability id="brand_of_shame">
+          <name>Brand of Shame</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>Make a Spellcast Roll against an enemy within Far range. On a success, they become Vulnerable.</description>
+        </ability>
+        <ability id="rallying_cry">
+          <name>Rallying Cry</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>Spend a Hope. You and all allies within Close range clear 1 Stress and gain +1 to their next roll.</description>
+        </ability>
+        <ability id="chains_of_obligation">
+          <name>Chains of Obligation</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Make a Spellcast Roll against a target within Far range. On a success, they are Restrained by spectral chains. They can make a Strength Reaction Roll (13) at the end of their turns to break free.</description>
+        </ability>
+        <ability id="righteous_fervour">
+          <name>Righteous Fervour</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope. Until your next rest, whenever an ally within Close range deals damage, they add your Proficiency to the total.</description>
+        </ability>
+        <ability id="just_decree">
+          <name>Just Decree</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope to command a creature within Far range to "Halt", "Flee", or "Drop". They make a Presence Reaction Roll (16). On a failure, they must spend their next action obeying the command.</description>
+        </ability>
+        <ability id="moral_high_ground">
+          <name>Moral High Ground</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Make a Spellcast Roll (16). On a success, create a zone of morality of your choice (Close radius). Creatures inside of compatible morality are immune to the Frightened condition and heal 1d4 Hit Points. Creatures of anathemic morality inside must mark a Stress and have disadvantage on immoral actions. Lasts for 1 minute.</description>
+        </ability>
+      </domainAbilities>
+    </domain>
+
+    <domain id="spirit" name="Spirit">
+      <description>Domain of souls, ancestors, and the ethereal connection between all living things. Grants the power to heal, commune, and channel spiritual energy.</description>
+      <domainAbilities>
+        <ability id="spirit_ward">
+          <name>Spirit Ward</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>Spend a Hope to touch a willing creature. Until the end of their next rest, they gain a bonus to their Evason equal to your Proficiency.</description>
+        </ability>
+        <ability id="ancestral_guidance">
+          <name>Spiritual Guidance</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>When an ally within Far range makes an Action Roll, you may spend a Hope to add one of your own Experiences to their roll. You can do this in addition to Help an Ally (in which case spend 2 Hope).</description>
+        </ability>
+        <ability id="soul_mend">
+          <name>Soul Mend</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>Make a Spellcast Roll (8) against a willing creature within Close range. On a success, they clear 1d4 Hit Points. If you succeed with Hope, they also clear a Stress.</description>
+        </ability>
+        <ability id="ethereal_sight">
+          <name>Ethereal Sight</name>
+          <level>2</level>
+          <recallCost>1</recallCost>
+          <description>Spend a Hope. Until the end of your next rest, you can see into the shallows of the Valley of Death and Astral Realms, allowing you to see spirits, ghosts, and magical auras that are normally invisible in the Mortal Realm.</description>
+        </ability>
+        <ability id="ethereal_weapon">
+          <name>Ethereal Weapon</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>Summon a floating spectral weapon of your choice within Close range. When you take the Attack action, you can simultaneously command the weapon to attack a target within its range using your Spellcast Trait. It deals d8 magic damage using your Proficiency.</description>
+        </ability>
+        <ability id="ethereal_wardens">
+          <name>Ethereal Wardens</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope. Spirits flit around you to a distance of Very Close range. Enemies must make an Agility Roll (12) to move in or out of the area. On success, they take d6 magical damage. If they fail, they take d8 magical damage using your Proficiency.</description>
+        </ability>
+        <ability id="haunt">
+          <name>Haunt</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Spend a Hope to sick a malevolant spirit on an enemy within Far range. The spirit harasses them, giving them disadvantage on all Action Rolls. The target can make a Presence Reaction Roll (15) at the end of each of their Actions to attempt to banish the spirit.</description>
+        </ability>
+        <ability id="ancestral_intercession">
+          <name>Ancestral Intercession</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Once per session, when the GM spends a Fear to make a GM Move, you can interrupt them. Take that Fear and convert it into a Hope, giving it to any player. The GM must spend another Fear to proceed with the move, if it still makes narrative sense.</description>
+        </ability>
+        <ability id="ghostly_steed">
+          <name>Ghostly Steed</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope to summon a spectral mount that lasts for 1 hour. While riding it, you can move up to Far range without requring an Agility Roll. When you move at least Close range to enter Melee range with an enemy, the steed charges through them. Make a Spellcast Roll against them. On a success, the target takes d12 magic damage using your Proficiency.</description>
+        </ability>
+      </domainAbilities>
+    </domain>
+
+    <domain id="steel" name="Steel">
+      <description>Domain of disciplined martial prowess, tactical formations, and unyielding resilience.</description>
+      <domainAbilities>
+        <ability id="steel_yourself">
+          <name>Steel Yourself</name>
+          <level>1</level>
+          <recallCost>0</recallCost>
+          <description>Spend a Hope to ignore the effects of a Condition on yourself for the purposes of your next Action or Reaction Roll.</description>
+        </ability>
+        <ability id="formation_of_camaraderie">
+          <name>Formation of Camaraderie</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>While you are within Very Close range of any number of allies, you all gain +1 to your Evasion.</description>
+        </ability>
+        <ability id="measured_strike">
+          <name>Measured Strike</name>
+          <level>1</level>
+          <recallCost>1</recallCost>
+          <description>When you make an Attack Roll, you can mark a Stress to add double your Proficiency to the result.</description>
+        </ability>
+        <ability id="shrewd_parry">
+          <name>Shrewd Parry</name>
+          <level>2</level>
+          <recallCost>1</recallCost>
+          <description>When you are hit by a melee attack, you can spend a Hope to roll your primary weapon's damage die, using your Proficiency, and reduce the incoming damage by the result.</description>
+        </ability>
+        <ability id="covering_move">
+          <name>Covering Move</name>
+          <level>2</level>
+          <recallCost>2</recallCost>
+          <description>When an ally within Close range is targeted by an attack, but before the attack roll is resolved, you can spend a Hope to move to within Very Close range of them and become the target of the attack instead.</description>
+        </ability>
+        <ability id="redirect_momentum">
+          <name>Redirect Momentum</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>When an enemy within Melee range misses you with an attack, you can spend a Hope to throw them off balance. You may move them to any unoccupied space within Very Close range of you, and they become Vulnerable.</description>
+        </ability>
+        <ability id="indomitable">
+          <name>Indomitable</name>
+          <level>3</level>
+          <recallCost>2</recallCost>
+          <description>Spend 2 Hope. For the next minute, you cannot be moved against your will, you are immune to the Frightened and Horrified conditions. Additionally clear 1d4 Stress.</description>
+        </ability>
+        <ability id="weapon_master">
+          <name>Weapon Master</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>Once per Session, spend 2 Hope and choose a weapon you are equipped with. Until the end of the scene, increase your Proficiency by 1 for all attacks made with that weaspon.</description>
+        </ability>
+        <ability id="coordinated_assault">
+          <name>Coordinated Assault</name>
+          <level>4</level>
+          <recallCost>2</recallCost>
+          <description>When you succeed on an attack against an enemy, spend 2 Hope. One ally within Close range of that enemy can immediately make an attack against them. If that attack succeeds with Fear, treat it as an equivalent success with Hope instead.</description>
+        </ability>
+      </domainAbilities>
+    </domain>
+  </domains>
+
+  <classes>
+    <class id="priest" name="Priest">
+      <description>Devoted intermediaries between the mortal and divine, Priests channel the power of their faith to shield the innocent, inspire their allies, and smite their enemies with holy fervour.</description>
+      <startingEvasion>10</startingEvasion>
+      <startingHitPoints>5</startingHitPoints>
+      <classItems>
+        <item>A spiritual pendant</item>
+        <item>A page of scripture</item>
+      </classItems>
+      <hopeFeature>
+        <feature id="shield_of_faith">
+          <name>Shield of Faith</name>
+          <description>Spend 3 Hope when an ally within Far range takes damage. Reduce the severity of the damage by one threshold (e.g. Severe becomes Major).</description>
+        </feature>
+      </hopeFeature>
+      <classFeatures>
+        <feature id="Preach">
+          <name>Preach</name>
+          <description>Once per session, you may deliver a sermon or offer words of spiritual guidance to your companions. Describe this moment, then grant yourself and each ally a Preach Die (d6). A player can spend this die to add its result to any Action, Reaction, or Damage roll, or to clear an equivalent amount of Stress. Unspent dice fade at the end of the session. At level 5, your Preach Die becomes a d8.</description>
+        </feature>
+      </classFeatures>
+      <backgroundQuestions>
+        <question id="priest_bq_0">Which deity or cause do you serve, and what is their primary tenet?</question>
+        <question id="priest_bq_1">What miracle or sign did you witness that solidified your faith?</question>
+        <question id="priest_bq_2">What is a sin or transgression from your past that you are trying to atone for?</question>
+      </backgroundQuestions>
+      <connections>
+        <question id="priest_cq_0">Which ally do you believe has a destiny intertwined with yours?</question>
+        <question id="priest_cq_1">Which ally's skepticism challenges your faith in a way you appreciate?</question>
+        <question id="priest_cq_2">Which ally did you save from a spiritual or physical crisis?</question>
+      </connections>
+      <domains>
+        <domain id="spirit" />
+        <domain id="duty" />
+      </domains>
+      <subclasses>
+        <subclass id="pilgrim" name="Pilgrim" description="Wanderers who find holiness in the journey itself, bringing aid to the distant and downtrodden.">
+          <spellcastTrait>presence</spellcastTrait>
+          <foundationFeatures>
+            <feature id="pilgrims_sacrifice">
+              <name>Pilgrim's Sacrifice</name>
+              <description>Your faith carries you forward and emboldens you against adversity. You may make any Agility Rolls to traverse difficult or dangerous terrain with your spellcast trait instead. Additionally, you may reroll any Presence Rolls made with Fear in tense or hostile social situations (you must accept the rerolled result).</description>
+            </feature>
+          </foundationFeatures>
+        </subclass>
+        <subclass id="firebrand" name="Firebrand" description="Zealots who ignite the spirits of their allies with impassioned words and righteous fury.">
+          <spellcastTrait>presence</spellcastTrait>
+          <foundationFeatures>
+            <feature id="rousing_prayer">
+              <name>Rousing Prayer</name>
+              <description>Once per long rest, you can give an inspiring, rousing prayer. All allies within Far range clear 2 Stress.</description>
+            </feature>
+          </foundationFeatures>
+        </subclass>
+      </subclasses>
+    </class>
+
+    <class id="soldier" name="Soldier">
+      <description>Disciplined warriors forged in the fires of conflict. Whether serving a kingdom, a mercenary company, or a personal code, Soldiers bring tactics, grit, and martial skill to the battlefield.</description>
+      <startingEvasion>10</startingEvasion>
+      <startingHitPoints>7</startingHitPoints>
+      <classItems>
+        <item>A letter from home</item>
+        <item>A memento of a fallen comrade</item>
+      </classItems>
+      <hopeFeature>
+        <feature id="stand_fast">
+          <name>Stand Fast</name>
+          <description>Spend 3 Hope. Until the end of the scene, you may mark a Stress any time you take physical damage to gain Resistance against all attacks from that adversary's spotlight.</description>
+        </feature>
+      </hopeFeature>
+      <classFeatures>
+        <feature id="hold_the_line">
+          <name>Hold the Line</name>
+          <description>You control the space around you. When an enemy attempts to move out of Melee range, you can mark a Stress to make a melee attack against them. On a success, they take weapon damage as usual and their movement ends immediately.</description>
+        </feature>
+        <feature id="discipline">
+          <name>Discipline</name>
+          <description>Your training holds you together when others fall apart. You are immune to the Frightened and Horrified conditions. Additionally, when you clear Stress during a Downtime Move, you clear an additional 1d4 Stress.</description>
+        </feature>
+        <feature id="matter_over_mind">
+          <name>Matter Over Mind</name>
+          <description>You do not have a class spellcast trait. Instead, choose one of your physical traits (Strength, Agility, or Finesse) to use as your spellcast trait for any Duty domain abilities that require one. Additionally, any Duty domain abilities that deal magical damage instead deal physical damage. Note: this feature does not grant any other benefits (or downsides) of having a class spellcast trait, e.g. you still cannot use magical weapons.</description>
+        </feature>
+      </classFeatures>
+      <backgroundQuestions>
+        <question id="soldier_bq_0">What conflict or war defined your early life?</question>
+        <question id="soldier_bq_1">Who was the commander or mentor who taught you your code?</question>
+        <question id="soldier_bq_2">What order, banner, or nation did you serve under, and why did you leave?</question>
+      </backgroundQuestions>
+      <connections>
+        <question id="soldier_cq_0">Which ally would you trust with your life in a foxhole?</question>
+        <question id="soldier_cq_1">Which ally reminds you of a rookie you couldn't save?</question>
+        <question id="soldier_cq_2">Which ally do you think is too reckless for their own good?</question>
+      </connections>
+      <domains>
+        <domain id="duty" />
+        <domain id="steel" />
+      </domains>
+      <subclasses>
+        <subclass id="commando" name="Commando" description="Elite operatives specialized in shock tactics and high-risk missions.">
+          <foundationFeatures>
+            <feature id="shock_tactics">
+              <name>Shock Tactics</name>
+              <description>You excel at seizing the initiative. On your first action in any combat scene, or an action that would plausibly initiate a combat scene, you have Advantage on all Action Rolls. Additionally, you deal an additional d6 damage, using your Proficiency, against enemies who have not yet acted in the scene.</description>
+            </feature>
+          </foundationFeatures>
+        </subclass>
+        <subclass id="strategist" name="Strategist" description="Battlefield commanders who support their squads with logistics and tactical insight.">
+          <foundationFeatures>
+            <feature id="field_logistics">
+              <name>Field Logistics</name>
+              <description>You are always prepared. You have 3 Supply points per session. You can spend a Supply point to produce a mundane item instantly from your inventory. Or, if plausible, describe by way of a narrative flashback any logistic preparations you made in this area e.g. set a simple trap, buried potions, etc. You must have already visited this area previously, or been here for an appropriate length of time.</description>
+            </feature>
+          </foundationFeatures>
+        </subclass>
+      </subclasses>
+    </class>
+
+    <class id="shaman" name="Shaman">
+      <description>Mystics who walk the line between the physical and spiritual realms. Shamans commune with the unseen, channeling the energies of life and death to guide their allies and curse their foes.</description>
+      <startingEvasion>11</startingEvasion>
+      <startingHitPoints>6</startingHitPoints>
+      <classItems>
+        <item>A bag of ritual herbs</item>
+        <item>A carved totem of an animal</item>
+      </classItems>
+      <hopeFeature>
+        <feature id="spirit_walk">
+          <name>Spirit Walk</name>
+          <description>Spend 3 Hope. You become incorporeal. You can move through objects and creatures, and you have Resistance to all physical damage. The effect lasts until the end of the scene, until you make an Attack Roll, or until you choose to reincorporate.</description>
+        </feature>
+      </hopeFeature>
+      <classFeatures>
+        <feature id="soul_siphon">
+          <name>Soul Siphon</name>
+          <description>When a sentient creature (friend or foe) dies within Close range of you, you can mark a Stress to capture a fragment of their essence, gaining a Soul Mote. You can hold up to 3 Soul Motes. You can spend a Soul Mote to add 1d6 to any Spellcast Roll or to clear 1 Stress. While you hold the unspent Soul Mote of a creature, it cannot be Resurrected. All Soul Motes you hold are considered spent after you perform a Death Move.</description>
+        </feature>
+        <feature id="ritualist">
+          <name>Ritualist</name>
+          <description>You are versed in the old ways. You can cast any spell you know as a Ritual. This takes 10 minutes of uninterrupted focus. When cast this way, any Hope or Stress cost for that spell is reduced by 1 (to a minimum of 0), and you gain advantage on any Spellcast Roll it requires.</description>
+        </feature>
+      </classFeatures>
+      <backgroundQuestions>
+        <question id="shaman_bq_0">What spirit first contacted you, and why did they choose you?</question>
+        <question id="shaman_bq_1">What taboo did you break that alienated you from your community?</question>
+        <question id="shaman_bq_2">What omen do you see in your dreams that drives you forward?</question>
+      </backgroundQuestions>
+      <connections>
+        <question id="shaman_cq_0">Which ally is skeptical of your "invisible friends"?</question>
+        <question id="shaman_cq_1">Which ally has a spirit clinging to them that only you can see?</question>
+        <question id="shaman_cq_2">Which ally did you heal with a remedy that defied explanation?</question>
+      </connections>
+      <domains>
+        <domain id="shadow" />
+        <domain id="spirit" />
+      </domains>
+      <subclasses>
+        <subclass id="spiritbound" name="Spiritbound" description="Bound to a benevolent spirit guide who aids you and your allies.">
+          <spellcastTrait>instinct</spellcastTrait>
+          <foundationFeatures>
+            <feature id="spirit_guide_bond">
+              <name>Spirit Guide Bond</name>
+              <description>You are never truly alone. You have a Spirit Guide companion. If it is destroyed, it reforms at your side after a Short Rest.</description>
+            </feature>
+          </foundationFeatures>
+          <companion id="shaman_spirit_guide" type="spirit">
+            <name>Spirit Guide</name>
+            <description>A luminous spirit taking the form of an animal or ancestor.</description>
+            <startingEvasion>10</startingEvasion>
+            <experiences>
+              <experience>Always A Friend</experience>
+              <experience>Did You See That?</experience>
+              <experience>Intangible Presence</experience>
+              <experience>Wise Counsel</experience>
+            </experiences>
+          </companion>
+        </subclass>
+        <subclass id="shadowbound" name="Shadowbound" description="Bound to a dark entity that hungers for the life force of your enemies.">
+          <spellcastTrait>instinct</spellcastTrait>
+          <foundationFeatures>
+            <feature id="shadow_entity_bond">
+              <name>Shadow Entity Bond</name>
+              <description>You have bound a shade to your service. You have a Shadow Entity companion. If it is destroyed, it reforms in your shadow after a Short Rest.</description>
+            </feature>
+          </foundationFeatures>
+          <companion id="shaman_shadow_entity" type="shadow">
+            <name>Shadow Entity</name>
+            <description>A shifting form of darkness that strikes from the corners of vision.</description>
+            <startingEvasion>10</startingEvasion>
+            <experiences>
+              <experience>Horrifying Form</experience>
+              <experience>The Lesser Evil</experience>
+              <experience>One with Darkness</experience>
+              <experience>Terrifying Visage</experience>
+            </experiences>
+          </companion>
+        </subclass>
+      </subclasses>
+    </class>
+  </classes>
+
+  <ancestries>
+    <ancestry id="human" name="Human">
+      <description>Ambitious and adaptable, humans are found in every corner of the world, driven by a desire to leave their mark.</description>
+      <ancestryFeature id="human_versatile" name="Versatile" description="Gain an additional Experience at character creation reflecting a unique skill or background." />
+      <ancestryFeature id="human_determined" name="Determined" description="Once per session, when you fail an Action Roll with Fear, you can mark a Stress to reroll it." />
+    </ancestry>
+
+    <ancestry id="gnome" name="Gnome">
+      <description>Small in stature but boundless in curiosity, gnomes are natural inventors and explorers of the magical world.</description>
+      <ancestryFeature id="gnome_inquisitive" name="Inquisitive Mind" description="You have Advantage on any Knowledge roll to understand a complex mechanism, spell, or puzzle." />
+      <ancestryFeature id="gnome_fade_away" name="Fade Away" description="Once per session when you are targeted by an attack, you can hide behind a larger creature or object within Very Close range, imposing Disadvantage on the attack roll." />
+    </ancestry>
+
+    <ancestry id="hobgoblin" name="Hobgoblin">
+      <description>Tall, imposing, and highly disciplined, hobgoblins value hierarchy, honor, and martial prowess.</description>
+      <ancestryFeature id="hobgoblin_weapon_training" name="Weapon Training" description="You are able to equip a Secondary weapon even if you have equipped a two-handed Primary weapon." />
+      <ancestryFeature id="hobgoblin_saving_face" name="Saving Face" description="Once per session, when you fail an Action Roll with Hope, you can gain a bonus to the roll equal to the number of allies within Very Close range of you." />
+    </ancestry>
+  </ancestries>
+
+  <communities>
+    <community id="farmborne" name="Farmborne">
+      <description>You were raised working the land, understanding the rhythm of the seasons and the value of hard work.</description>
+      <communityFeature id="farmborne_bounty" name="Bountiful Table" description="During a rest, if you have access to basic supplies, you can prepare a hearty meal. You and your allies who choose to clear Stress as a Downtime Move can clear an additional 1d4 Stress." />
+    </community>
+
+    <community id="desertborne" name="Desertborne">
+      <description>You hail from the shifting sands, where water is life and survival is a daily test of endurance.</description>
+      <communityFeature id="desertborne_survivor" name="Desert Survivor" description="You are adapted to harsh climates. You gain a permanent additional Stress slot. Additionally, you can always find water if it exists in the area." />
+    </community>
+
+    <community id="forestborne" name="Forestborne">
+      <description>You grew up beneath a canopy of ancient trees, learning to move unseen and listen to the whispers of the forest.</description>
+      <communityFeature id="forestborne_mask_of_the_Woods" name="Mask of the Woods" description="You can attempt to hide even when you are only lightly obscured by foliage, heavy rain, falling snow, mist, and other inclement weather. Additionally, you cannot get lost in natural forests." />
+    </community>
+  </communities>
+
+  <equipment>
+    <startingEquipment>
+      <items>
+        <item>Torch</item>
+        <item>Coil of rope</item>
+        <item>Pack of supplies</item>
+      </items>
+      <gold>
+        <handful>1</handful>
+      </gold>
+      <optionGroup id="starting_oils" name="Starting Oil">
+        <option>
+          <item>Weapon Oil</item>
+          <description>Add +1d4 damage to coated weapon attacks until next rest</description>
+        </option>
+        <option>
+          <item>Spell Oil</item>
+          <description>Gain +1 to your spellcast trait until next rest</description>
+        </option>
+      </optionGroup>
+    </startingEquipment>
+
+    <weapons>
+      <primary type="physical" tier="1">
+        <weapon id="broadsword" name="Broadsword" trait="Strength" range="Melee" damage="d8 phy" burden="One-Handed" feature=""/>
+        <weapon id="greataxe" name="Greataxe" trait="Strength" range="Melee" damage="d10+3 phy" burden="Two-Handed" feature=""/>
+        <weapon id="shortbow" name="Shortbow" trait="Agility" range="Far" damage="d6+3 phy" burden="Two-Handed" feature=""/>
+      </primary>
+      <primary type="magic" tier="1">
+        <weapon id="wand" name="Wand" trait="Knowledge" range="Far" damage="d6+1 mag" burden="One-Handed" feature=""/>
+      </primary>
+      <secondary tier="1">
+        <weapon id="buckler" name="Buckler" trait="Agility" range="Melee" damage="d4 phy" burden="One-Handed" feature="Protective: +1 to Armor Score"/>
+        <weapon id="small_dagger" name="Small Dagger" trait="Finesse" range="Melee" damage="d8 phy" burden="One-Handed" feature="Paired: +2 to primary weapon damage to targets within Melee range"/>
+      </secondary>
+    </weapons>
+
+    <armors>
+      <armor tier="1">
+        <armorItem id="padded_armor" name="Padded Armor" baseThresholds="5 / 11" baseScore="3" feature="Flexible: +1 to Evasion"/>
+        <armorItem id="chainmail_armor" name="Chainmail Armor" baseThresholds="7 / 15" baseScore="4" feature="Heavy: -1 to Evasion"/>
+      </armor>
+    </armors>
+  </equipment>
+
+  <experiences>
+    <category name="Backgrounds">
+      <experience>Farmer</experience>
+      <experience>Criminal</experience>
+    </category>
+    <category name="Characteristics">
+      <experience>Calm</experience>
+      <experience>Rugged</experience>
+    </category>
+    <category name="Specialties">
+      <experience>Alchemist</experience>
+      <experience>Teacher</experience>
+    </category>
+    <category name="Skills">
+      <experience>Climber</experience>
+      <experience>Knitter</experience>
+    </category>
+    <category name="Phrases">
+      <experience>Too Big To Fail</experience>
+    </category>
+  </experiences>
+
+</compendium>
