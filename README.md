@@ -38,6 +38,17 @@ Currently in **early alpha**, Heartcraft supports the following high-level featu
 [![Resources tab showing evasion, damage thresholds, armor, HP, stress, and hope trackers](docs/images/screenshot-phone-resources-tab-thumb.png)](docs/images/screenshot-phone-resources-tab.jpg)
 [![Manage compendium screen showing homebrew compendiums](docs/images/screenshot-windows-compendiums-thumb.png)](docs/images/screenshot-windows-compendiums.png)
 
+## Download
+
+Binary releases for Android and Windows x64 can be found under
+[GitHub Releases](https://github.com/peterdn/heartcraft/releases).
+
+> ⚠️⚠️⚠️ Please note that these binaries are unsigned and may require bypassing security settings
+> to install (particularly on Android). This is generally NOT a good idea so proceed at your own
+> risk.
+
+---
+
 ## Design Philosophy
 
 Aspirational (it's nowhere near there yet!) app tenets include:
