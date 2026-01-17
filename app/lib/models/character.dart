@@ -439,7 +439,7 @@ class Character {
     if (primaryWeaponElement != null) {
       final weaponId = primaryWeaponElement.getAttribute('id');
       if (weaponId != null && weaponId.isNotEmpty) {
-        primaryWeapon = gameDataService.weapons
+        primaryWeapon = gameDataService.primaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
       }
     }
@@ -449,7 +449,7 @@ class Character {
     if (secondaryWeaponElement != null) {
       final weaponId = secondaryWeaponElement.getAttribute('id');
       if (weaponId != null && weaponId.isNotEmpty) {
-        secondaryWeapon = gameDataService.weapons
+        secondaryWeapon = gameDataService.secondaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
       }
     }
@@ -807,6 +807,16 @@ class Character {
   /// (e.g. "Ranger (Beastbound) 6")
   String get classLevelString {
     return '$className $level';
+  }
+
+  int get tier {
+    return level == 1
+        ? 1
+        : level <= 4
+            ? 2
+            : level <= 7
+                ? 3
+                : 4;
   }
 }
 

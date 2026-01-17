@@ -21,6 +21,7 @@ import '../theme/heartcraft_theme.dart';
 class ArmorDropdown extends StatelessWidget {
   final List<Armor> armor;
   final Armor? selectedArmor;
+  final int maxTier;
   final Function(Armor?) onChanged;
   final bool isDisabled;
   final String? hintText;
@@ -29,6 +30,7 @@ class ArmorDropdown extends StatelessWidget {
     super.key,
     required this.armor,
     required this.selectedArmor,
+    required this.maxTier,
     required this.onChanged,
     this.isDisabled = false,
     this.hintText = 'Select armor',
@@ -36,6 +38,16 @@ class ArmorDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // HACK: dummy armor to keep DropdownButton happy when no armor is selected
+    var dummyHeaderValue = Armor(
+        id: "",
+        name: "",
+        tier: 0,
+        majorDamageThreshold: 0,
+        severeDamageThreshold: 0,
+        baseScore: 0,
+        feature: "");
+
     return Container(
       height: null,
       decoration: BoxDecoration(
@@ -81,48 +93,78 @@ class ArmorDropdown extends StatelessWidget {
                 ),
               ),
             ),
-            ...armor.map(
-              (armorItem) => DropdownMenuItem<Armor?>(
-                value: armorItem,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        armorItem.name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Score: ${armorItem.baseScore} • Thresholds: ${armorItem.baseThresholds}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[400],
-                            ),
-                      ),
-                      if (armorItem.feature.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          armorItem.feature,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[300],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
+            // Group armor by tier
+            for (int tier = 1; tier <= maxTier; tier++) ...[
+              if (armor.any((a) => a.tier == tier)) ...[
+                // Tier header
+                DropdownMenuItem<Armor?>(
+                  enabled: false,
+                  value: dummyHeaderValue,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      'Tier $tier',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: HeartcraftTheme.gold,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                 ),
-              ),
-            )
+                // Armor items for this tier
+                ...armor.where((a) => a.tier == tier).map(
+                      (armorItem) => DropdownMenuItem<Armor?>(
+                        value: armorItem,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                armorItem.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Score: ${armorItem.baseScore} • Thresholds: ${armorItem.baseThresholds}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.grey[400],
+                                    ),
+                              ),
+                              if (armorItem.feature.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  armorItem.feature,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey[300],
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+              ],
+            ]
           ],
         ),
       ),

@@ -100,7 +100,7 @@ void main() {
                 a.id == 'app.heartcraft.homebrew.demo.p2')
             .toList(),
         inventory: [],
-        primaryWeapon: gameDataService.weapons.firstWhere(
+        primaryWeapon: gameDataService.primaryWeapons.firstWhere(
             (w) => w.id == 'app.heartcraft.homebrew.demo.broadsword'),
         equippedArmor: gameDataService.armor.firstWhere(
             (a) => a.id == 'app.heartcraft.homebrew.demo.padded_armor'),

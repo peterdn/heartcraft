@@ -21,6 +21,7 @@ import '../theme/heartcraft_theme.dart';
 class WeaponDropdown extends StatelessWidget {
   final List<Weapon> weapons;
   final Weapon? selectedWeapon;
+  final int maxTier;
   final Function(Weapon?) onChanged;
   final bool isDisabled;
   final String? hintText;
@@ -29,6 +30,7 @@ class WeaponDropdown extends StatelessWidget {
     super.key,
     required this.weapons,
     required this.selectedWeapon,
+    required this.maxTier,
     required this.onChanged,
     this.isDisabled = false,
     this.hintText,
@@ -36,6 +38,18 @@ class WeaponDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // HACK: dummy weapon to keep DropdownButton happy when no weapon is selected
+    var dummyHeaderValue = Weapon(
+        id: "",
+        name: "",
+        trait: "",
+        range: "",
+        damage: "",
+        burden: WeaponBurden.unknown,
+        feature: "",
+        type: "",
+        tier: 0);
+
     return Container(
       height: null,
       decoration: BoxDecoration(
@@ -81,51 +95,79 @@ class WeaponDropdown extends StatelessWidget {
                 ),
               ),
             ),
-            ...weapons.map(
-              (weapon) => DropdownMenuItem<Weapon?>(
-                value: weapon,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${weapon.name} (${weapon.type})',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: weapon.type == 'magic'
-                                  ? HeartcraftTheme.gold
-                                  : HeartcraftTheme.primaryTextColor,
-                            ),
+            for (int tier = 1; tier <= maxTier; tier++) ...[
+              for (String type in ["physical", "magic"]) ...[
+                if (weapons.any((w) => w.tier == tier && w.type == type)) ...[
+                  DropdownMenuItem<Weapon?>(
+                    enabled: false,
+                    value: dummyHeaderValue,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Tier $tier $type',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: HeartcraftTheme.gold,
+                                ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${weapon.trait} • ${weapon.range} • ${weapon.damage} • ${weapon.burden.displayName}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[400],
-                            ),
-                      ),
-                      if (weapon.feature.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          weapon.feature,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[300],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            )
+                  ...weapons.where((w) => w.tier == tier && w.type == type).map(
+                        (weapon) => DropdownMenuItem<Weapon?>(
+                          value: weapon,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  weapon.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: HeartcraftTheme.primaryTextColor,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${weapon.trait} • ${weapon.range} • ${weapon.damage} • ${weapon.burden.displayName}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey[400],
+                                      ),
+                                ),
+                                if (weapon.feature.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    weapon.feature,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.grey[300],
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                ]
+              ]
+            ]
           ],
         ),
       ),

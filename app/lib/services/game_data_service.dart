@@ -606,10 +606,9 @@ class GameDataService {
   }
 
   /// Load all weapons from XML
-  List<Weapon> loadWeapons(
-      XmlElement equipmentElement, Compendium? compendium) {
-    if (compendium == null) return [];
-    if (compendium.weapons.isNotEmpty) return compendium.weapons;
+  void loadWeapons(XmlElement equipmentElement, Compendium? compendium) {
+    if (compendium == null) return;
+    if (compendium.primaryWeapons.isNotEmpty) return;
 
     try {
       final weaponsElement = equipmentElement.getElement("weapons");
@@ -619,24 +618,22 @@ class GameDataService {
         final type = primary.getAttribute('type') ?? 'physical';
         final tier = int.tryParse(primary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in primary.findElements('weapon')) {
-          compendium.weapons
+          compendium.primaryWeapons
               .add(Weapon.fromXml(weapon, type, tier, compendium));
         }
       }
 
       // Load secondary weapons
       for (final secondary in weaponsElement.findAllElements('secondary')) {
-        const type = 'secondary';
+        final type = secondary.getAttribute('type') ?? 'physical';
         final tier = int.tryParse(secondary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in secondary.findElements('weapon')) {
-          compendium.weapons
+          compendium.secondaryWeapons
               .add(Weapon.fromXml(weapon, type, tier, compendium));
         }
       }
-
-      return compendium.weapons;
     } catch (e) {
-      return [];
+      return;
     }
   }
 
@@ -780,7 +777,9 @@ class GameDataService {
   List<Domain> get domains => _mergedCompendium?.domains ?? [];
   List<DomainAbility> get domainAbilities =>
       _mergedCompendium?.domainAbilities ?? [];
-  List<Weapon> get weapons => _mergedCompendium?.weapons ?? [];
+  List<Weapon> get primaryWeapons => _mergedCompendium?.primaryWeapons ?? [];
+  List<Weapon> get secondaryWeapons =>
+      _mergedCompendium?.secondaryWeapons ?? [];
   List<Armor> get armor => _mergedCompendium?.armor ?? [];
   Map<String, List<SubClass>> get subclasses =>
       _mergedCompendium?.subclasses ?? {};

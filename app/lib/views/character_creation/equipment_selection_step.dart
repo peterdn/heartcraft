@@ -36,9 +36,11 @@ class EquipmentSelectionStep extends StatefulWidget {
 
 class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   late final GameDataService gameDataService;
-  late final List<Weapon> physicalWeapons;
-  late final List<Weapon> magicWeapons;
+  late final List<Weapon> primaryPhysicalWeapons;
+  late final List<Weapon> primaryMagicWeapons;
   late final List<Weapon> secondaryWeapons;
+  late final List<Weapon> secondaryPhysicalWeapons;
+  late final List<Weapon> secondaryMagicWeapons;
   late final List<Armor> armorList;
   late final List<OptionGroup> optionGroups;
   late final List<String> automaticItems;
@@ -56,10 +58,16 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
     super.initState();
     gameDataService = context.read<GameDataService>();
 
-    final weapons = gameDataService.weapons;
-    physicalWeapons = weapons.where((w) => w.type == 'physical').toList();
-    magicWeapons = weapons.where((w) => w.type == 'magic').toList();
-    secondaryWeapons = weapons.where((w) => w.type == 'secondary').toList();
+    final primaryWeapons = gameDataService.primaryWeapons;
+    primaryPhysicalWeapons =
+        primaryWeapons.where((w) => w.type == 'physical').toList();
+    primaryMagicWeapons =
+        primaryWeapons.where((w) => w.type == 'magic').toList();
+    secondaryWeapons = gameDataService.secondaryWeapons;
+    secondaryPhysicalWeapons =
+        secondaryWeapons.where((w) => w.type == 'physical').toList();
+    secondaryMagicWeapons =
+        secondaryWeapons.where((w) => w.type == 'magic').toList();
     armorList = gameDataService.armor;
     automaticItems = gameDataService.startingItems;
     startingGold = gameDataService.startingGold;
@@ -146,7 +154,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   if (widget.provider.character.primaryWeapon?.burden !=
                       WeaponBurden.twoHanded)
                     _buildWeaponSection(
-                      secondaryWeapons,
+                      _getAvailableSecondaryWeapons(),
                       widget.provider.character.secondaryWeapon,
                       (weapon) => widget.provider.selectSecondaryWeapon(weapon),
                     ),
@@ -219,11 +227,26 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
 
     // If subclass has a spellcast trait, include magic weapons
     if (subclass != null && subclass.spellcastTrait != null) {
-      return [...physicalWeapons, ...magicWeapons];
+      return [...primaryPhysicalWeapons, ...primaryMagicWeapons];
     }
 
     // If subclass not selected or has no spellcast trait, only show physical weapons
-    return physicalWeapons;
+    return primaryPhysicalWeapons;
+  }
+
+  /// Get available secondary weapons based on character's subclass
+  /// If subclass has spellcast trait, include magic weapons
+  List<Weapon> _getAvailableSecondaryWeapons() {
+    final character = widget.provider.character;
+    final subclass = character.subclass;
+
+    // If subclass has a spellcast trait, include magic weapons
+    if (subclass != null && subclass.spellcastTrait != null) {
+      return [...secondaryPhysicalWeapons, ...secondaryMagicWeapons];
+    }
+
+    // If subclass not selected or has no spellcast trait, only show physical weapons
+    return secondaryPhysicalWeapons;
   }
 
   Widget _buildWeaponSection(
@@ -249,6 +272,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
     return WeaponDropdown(
       weapons: weapons,
       selectedWeapon: selected,
+      maxTier: 1,
       onChanged: onChanged,
       isDisabled: isDisabled,
     );
@@ -268,6 +292,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         const SizedBox(height: 12),
         ArmorDropdown(
           armor: armorList,
+          maxTier: 1,
           selectedArmor: widget.provider.character.equippedArmor,
           onChanged: (armor) => widget.provider.selectArmor(armor),
         ),

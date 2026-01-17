@@ -260,6 +260,7 @@ class EquipmentTab extends StatelessWidget {
             _buildArmorCard(
               context,
               character.equippedArmor,
+              character.tier,
               editMode,
               (armor) => characterProvider.updateEquippedArmor(armor),
             ),
@@ -687,8 +688,6 @@ class EquipmentTab extends StatelessWidget {
                 weapon.name,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color:
-                          weapon.type == 'magic' ? HeartcraftTheme.gold : null,
                     ),
               ),
               const SizedBox(height: 4),
@@ -727,31 +726,38 @@ class EquipmentTab extends StatelessWidget {
       Function(Weapon?) onChanged, CharacterProvider characterProvider,
       [Weapon? currentWeapon]) {
     final gameDataService = context.read<GameDataService>();
-    final allWeapons = gameDataService.weapons;
     final character = characterProvider.currentCharacter!;
 
     List<Weapon> availableWeapons;
+    List<Weapon> physicalWeapons;
+    List<Weapon> magicWeapons;
     if (isPrimary) {
-      // Primary weapons: physical and magic (filtered by spellcast trait)
-      final physicalWeapons =
-          allWeapons.where((w) => w.type == 'physical').toList();
-      final magicWeapons = allWeapons.where((w) => w.type == 'magic').toList();
-
-      // Include magic weapons only if character has spellcast trait
-      if (character.subclass?.spellcastTrait != null) {
-        availableWeapons = [...physicalWeapons, ...magicWeapons];
-      } else {
-        availableWeapons = physicalWeapons;
-      }
+      physicalWeapons = gameDataService.primaryWeapons
+          .where((w) => w.type == 'physical')
+          .toList();
+      magicWeapons = gameDataService.primaryWeapons
+          .where((w) => w.type == 'magic')
+          .toList();
     } else {
-      // Secondary weapons
-      availableWeapons =
-          allWeapons.where((w) => w.type == 'secondary').toList();
+      physicalWeapons = gameDataService.secondaryWeapons
+          .where((w) => w.type == 'physical')
+          .toList();
+      magicWeapons = gameDataService.secondaryWeapons
+          .where((w) => w.type == 'magic')
+          .toList();
+    }
+
+    // Include magic weapons only if character has spellcast trait
+    if (character.subclass?.spellcastTrait != null) {
+      availableWeapons = [...physicalWeapons, ...magicWeapons];
+    } else {
+      availableWeapons = physicalWeapons;
     }
 
     return WeaponDropdown(
       weapons: availableWeapons,
       selectedWeapon: currentWeapon,
+      maxTier: character.tier,
       onChanged: onChanged,
     );
   }
@@ -760,6 +766,7 @@ class EquipmentTab extends StatelessWidget {
   Widget _buildArmorCard(
     BuildContext context,
     Armor? armor,
+    int maxTier,
     bool canEdit,
     Function(Armor?) onChanged,
   ) {
@@ -787,7 +794,7 @@ class EquipmentTab extends StatelessWidget {
           const SizedBox(height: 8),
           if (canEdit) ...[
             // Edit mode - only show dropdown
-            _buildArmorDropdown(context, onChanged, armor),
+            _buildArmorDropdown(context, onChanged, armor, maxTier),
           ] else ...[
             // Display mode - show armor details or empty state
             if (armor == null) ...[
@@ -839,13 +846,14 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build armor dropdown for edit mode
   Widget _buildArmorDropdown(BuildContext context, Function(Armor?) onChanged,
-      [Armor? currentArmor]) {
+      Armor? currentArmor, int maxTier) {
     final gameDataService = context.read<GameDataService>();
     final availableArmor = gameDataService.armor;
 
     return ArmorDropdown(
       armor: availableArmor,
       selectedArmor: currentArmor,
+      maxTier: maxTier,
       onChanged: onChanged,
     );
   }
