@@ -71,21 +71,20 @@ Aspirational (it's nowhere near there yet!) app tenets include:
 ## Roadmap
 
 It's early days for Heartcraft and, as a hobby project, features are prioritised based on what I
-need at my own game table. These currently include:
+need at my own game table. Upcoming TODOs include:
 
-- Finish level-up, i.e. support tier 3 and 4 advancements, including multiclassing
-- Domain card vault
-- Inventory and custom weapons
-- Support for large, tier-depedendent features (e.g. like Druid Beastform)
-- Ability resource/token management (e.g. Prayer dice tracker)
-- Combat wheelchair support
-- iOS & MacOS support (may already work, but I currently do not have the tools nor hardware to
-  build or test for these platforms)
-- ... general UI and UX improvements across the board (currently prioritises "function over form")!
-  - Inventory and gold management, and level-up specifically need LOTS of love
-  - App icons
-- Character syncing between devices?
-  - Would break the "no network access" policy...
+- [ ] Finish level-up, i.e. support tier 3 and 4 advancements, including multiclassing
+- [ ] Domain card vault
+- [ ] Inventory and custom weapons
+- [ ] Support for large, tier-dependent features (e.g. like Druid Beastform)
+- [ ] Ability resource/token management (e.g. Prayer dice tracker)
+- [ ] ... general UI and UX improvements across the board (currently prioritises "function over form")!
+  - [ ] Inventory and gold management specifically need love
+  - [ ] App icons
+- [ ] iOS & MacOS support (may already work, but I currently do not have the tools or hardware to build
+      or test for these platforms)
+- [ ] Character syncing between devices?
+  - Would break the "free and private" design philosophy...
 
 ## Contributing
 
@@ -115,6 +114,34 @@ Heartcraft is built using Flutter and Dart.
 2. `cd app`
 3. Run `flutter pub get` to install dependencies
 4. Run `flutter run` to start the app in debug mode
+
+### Packaging for Android
+
+To build an Android APK:
+
+```bash
+cd app
+flutter build apk --release --build-name=$(cat ../VERSION) --build-number=$(git rev-parse --short HEAD)
+```
+
+### Packaging for Windows
+
+To build a Windows executable:
+
+```bash
+cd app
+flutter build windows --release --build-name=$(cat ../VERSION) --build-number=$(git rev-parse --short HEAD)
+```
+
+Note that this executable is not standalone, it requires:
+
+- All of the auxiliary .dlls and assets found under `build\windows\x64\runner\Release`
+- [Visual C++ 14 runtime libraries](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version), specifically:
+  - msvcp140.dll
+  - vcruntime140.dll
+  - vcruntime140_1.dll
+
+Currently this is all just packaged into a zip archive - no Windows installer for Heartcraft is provided.
 
 ## Compendium Data Format
 
