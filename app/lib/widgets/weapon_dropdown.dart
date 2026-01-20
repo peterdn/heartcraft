@@ -47,6 +47,7 @@ class WeaponDropdown extends StatelessWidget {
         damage: "",
         burden: WeaponBurden.unknown,
         feature: "",
+        damageType: "",
         type: "",
         tier: 0);
 
@@ -97,7 +98,8 @@ class WeaponDropdown extends StatelessWidget {
             ),
             for (int tier = 1; tier <= maxTier; tier++) ...[
               for (String type in ["physical", "magic"]) ...[
-                if (weapons.any((w) => w.tier == tier && w.type == type)) ...[
+                if (weapons
+                    .any((w) => w.tier == tier && w.damageType == type)) ...[
                   DropdownMenuItem<Weapon?>(
                     enabled: false,
                     value: dummyHeaderValue,
@@ -114,7 +116,9 @@ class WeaponDropdown extends StatelessWidget {
                       ),
                     ),
                   ),
-                  ...weapons.where((w) => w.tier == tier && w.type == type).map(
+                  ...weapons
+                      .where((w) => w.tier == tier && w.damageType == type)
+                      .map(
                         (weapon) => DropdownMenuItem<Weapon?>(
                           value: weapon,
                           child: Padding(
@@ -132,7 +136,9 @@ class WeaponDropdown extends StatelessWidget {
                                       .bodyMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: HeartcraftTheme.primaryTextColor,
+                                        color: weapon.custom
+                                            ? HeartcraftTheme.lightPurple
+                                            : HeartcraftTheme.primaryTextColor,
                                       ),
                                 ),
                                 const SizedBox(height: 4),

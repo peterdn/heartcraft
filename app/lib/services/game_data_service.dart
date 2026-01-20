@@ -615,21 +615,21 @@ class GameDataService {
 
       // Load primary weapons (physical and magic)
       for (final primary in weaponsElement!.findAllElements('primary')) {
-        final type = primary.getAttribute('type') ?? 'physical';
+        final damageType = primary.getAttribute('type') ?? 'physical';
         final tier = int.tryParse(primary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in primary.findElements('weapon')) {
-          compendium.primaryWeapons
-              .add(Weapon.fromXml(weapon, type, tier, compendium));
+          compendium.primaryWeapons.add(
+              Weapon.fromXml(weapon, damageType, 'primary', tier, compendium));
         }
       }
 
       // Load secondary weapons
       for (final secondary in weaponsElement.findAllElements('secondary')) {
-        final type = secondary.getAttribute('type') ?? 'physical';
+        final damageType = secondary.getAttribute('type') ?? 'physical';
         final tier = int.tryParse(secondary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in secondary.findElements('weapon')) {
-          compendium.secondaryWeapons
-              .add(Weapon.fromXml(weapon, type, tier, compendium));
+          compendium.secondaryWeapons.add(Weapon.fromXml(
+              weapon, damageType, 'secondary', tier, compendium));
         }
       }
     } catch (e) {

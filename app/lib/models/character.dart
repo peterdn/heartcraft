@@ -84,6 +84,9 @@ class Character {
   Weapon? secondaryWeapon;
   Gold gold;
 
+  // Custom weapons defined for this character
+  List<Weapon> customWeapons;
+
   // TODO: tidy up this huge mess of nullables and requireds...
   Character({
     required this.id,
@@ -125,6 +128,7 @@ class Character {
     this.secondaryWeapon,
     required this.notes,
     required this.gold,
+    required this.customWeapons,
   });
 
   static String _generateCharacterId() {
@@ -161,6 +165,7 @@ class Character {
       inventory: [],
       notes: '',
       gold: Gold.empty(),
+      customWeapons: [],
     );
   }
 
@@ -432,13 +437,36 @@ class Character {
       }
     }
 
+    // Custom weapons - loaded first so equipped weapons can reference them
+    // TODO make consistent with compendium format
+    List<Weapon> customWeapons = [];
+    final customWeaponsElement = characterElement.getElement('customWeapons');
+    if (customWeaponsElement != null) {
+      for (var weaponElement in customWeaponsElement.findElements('weapon')) {
+        final type = weaponElement.getAttribute('type') ?? 'primary';
+        final damageType =
+            weaponElement.getAttribute('damage')!.split(' ')[1] == 'mag'
+                ? 'magic'
+                : 'physical';
+        final tier = int.parse(weaponElement.getAttribute('tier')!);
+        final weapon = Weapon.fromXml(weaponElement, damageType, type, tier);
+        weapon.custom = true;
+        customWeapons.add(weapon);
+      }
+    }
+
     // Equipped weapons
     Weapon? primaryWeapon;
     Weapon? secondaryWeapon;
     final primaryWeaponElement = characterElement.getElement('primaryWeapon');
     if (primaryWeaponElement != null) {
-      final weaponId = primaryWeaponElement.getAttribute('id');
-      if (weaponId != null && weaponId.isNotEmpty) {
+      final weaponId = primaryWeaponElement.getAttribute('id')!;
+      final custom =
+          bool.parse(primaryWeaponElement.getAttribute('custom') ?? 'false');
+      if (custom) {
+        primaryWeapon =
+            customWeapons.firstWhere((weapon) => weapon.id == weaponId);
+      } else {
         primaryWeapon = gameDataService.primaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
       }
@@ -448,7 +476,12 @@ class Character {
         characterElement.getElement('secondaryWeapon');
     if (secondaryWeaponElement != null) {
       final weaponId = secondaryWeaponElement.getAttribute('id');
-      if (weaponId != null && weaponId.isNotEmpty) {
+      final custom =
+          bool.parse(secondaryWeaponElement.getAttribute('custom') ?? 'false');
+      if (custom) {
+        secondaryWeapon =
+            customWeapons.firstWhere((weapon) => weapon.id == weaponId);
+      } else {
         secondaryWeapon = gameDataService.secondaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
       }
@@ -475,46 +508,46 @@ class Character {
     }
 
     return Character(
-      id: id,
-      name: name,
-      pronouns: pronouns,
-      description: description,
-      ancestry: ancestry,
-      secondAncestry: secondAncestry,
-      community: community,
-      characterClass: characterClass,
-      subclass: subclass,
-      domains: domains,
-      traits: traits,
-      evasion: evasion,
-      proficiency: proficiency,
-      majorDamageThreshold: majorDamageThreshold,
-      severeDamageThreshold: severeDamageThreshold,
-      maxHitPoints: maxHitPoints,
-      currentHitPoints: currentHitPoints,
-      maxArmor: maxArmor,
-      currentArmor: currentArmor,
-      maxHope: maxHope,
-      currentHope: currentHope,
-      maxStress: maxStress,
-      currentStress: currentStress,
-      subclassTier: subclassTier,
-      level: level,
-      advancements: advancements,
-      background: background,
-      backgroundQuestionnaireAnswers: backgroundQuestionnaireAnswers,
-      experiences: experiences,
-      connections: connections,
-      portraitPath: portraitPath,
-      domainAbilities: domainAbilities,
-      companion: companion,
-      inventory: inventory,
-      equippedArmor: equippedArmor,
-      primaryWeapon: primaryWeapon,
-      secondaryWeapon: secondaryWeapon,
-      notes: notes,
-      gold: gold,
-    );
+        id: id,
+        name: name,
+        pronouns: pronouns,
+        description: description,
+        ancestry: ancestry,
+        secondAncestry: secondAncestry,
+        community: community,
+        characterClass: characterClass,
+        subclass: subclass,
+        domains: domains,
+        traits: traits,
+        evasion: evasion,
+        proficiency: proficiency,
+        majorDamageThreshold: majorDamageThreshold,
+        severeDamageThreshold: severeDamageThreshold,
+        maxHitPoints: maxHitPoints,
+        currentHitPoints: currentHitPoints,
+        maxArmor: maxArmor,
+        currentArmor: currentArmor,
+        maxHope: maxHope,
+        currentHope: currentHope,
+        maxStress: maxStress,
+        currentStress: currentStress,
+        subclassTier: subclassTier,
+        level: level,
+        advancements: advancements,
+        background: background,
+        backgroundQuestionnaireAnswers: backgroundQuestionnaireAnswers,
+        experiences: experiences,
+        connections: connections,
+        portraitPath: portraitPath,
+        domainAbilities: domainAbilities,
+        companion: companion,
+        inventory: inventory,
+        equippedArmor: equippedArmor,
+        primaryWeapon: primaryWeapon,
+        secondaryWeapon: secondaryWeapon,
+        notes: notes,
+        gold: gold,
+        customWeapons: customWeapons);
   }
 
   /// Convert Character to XML string
@@ -707,12 +740,14 @@ class Character {
       if (primaryWeapon != null) {
         builder.element('primaryWeapon', nest: () {
           builder.attribute('id', primaryWeapon!.id);
+          builder.attribute('custom', primaryWeapon!.custom.toString());
         });
       }
 
       if (secondaryWeapon != null) {
         builder.element('secondaryWeapon', nest: () {
           builder.attribute('id', secondaryWeapon!.id);
+          builder.attribute('custom', secondaryWeapon!.custom.toString());
         });
       }
 
@@ -723,6 +758,25 @@ class Character {
         builder.element('handful', nest: gold.handfuls.toString());
         builder.element('coin', nest: gold.coins.toString());
       });
+
+      // Custom weapons
+      if (customWeapons.isNotEmpty) {
+        builder.element('customWeapons', nest: () {
+          for (var weapon in customWeapons) {
+            builder.element('weapon', nest: () {
+              builder.attribute('id', weapon.id);
+              builder.attribute('name', weapon.name);
+              builder.attribute('trait', weapon.trait);
+              builder.attribute('range', weapon.range);
+              builder.attribute('damage', weapon.damage);
+              builder.attribute('burden', weapon.burden.displayName);
+              builder.attribute('feature', weapon.feature);
+              builder.attribute('type', weapon.type);
+              builder.attribute('tier', weapon.tier.toString());
+            });
+          }
+        });
+      }
 
       // Notes
       builder.element('notes', nest: () {

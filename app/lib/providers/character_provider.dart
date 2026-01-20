@@ -460,6 +460,84 @@ class CharacterProvider extends ChangeNotifier {
         stress.clamp(0, _currentCharacter!.maxStress));
   }
 
+  /// Add a custom weapon, or if it already exists by ID, update it
+  void upsertCustomWeapon(Weapon weapon) {
+    _updateField(() {
+      final index =
+          _currentCharacter!.customWeapons.indexWhere((w) => w.id == weapon.id);
+      if (index >= 0) {
+        _currentCharacter!.customWeapons[index] = weapon;
+      } else {
+        _currentCharacter!.customWeapons.add(weapon);
+      }
+    });
+  }
+
+  /// Delete a custom weapon by ID
+  void deleteCustomWeapon(String weaponId) {
+    _updateField(() {
+      _currentCharacter!.customWeapons
+          .removeWhere((weapon) => weapon.id == weaponId);
+      // Also unequip if currently equipped
+      if (_currentCharacter!.primaryWeapon?.id == weaponId) {
+        _currentCharacter!.primaryWeapon = null;
+      }
+      if (_currentCharacter!.secondaryWeapon?.id == weaponId) {
+        _currentCharacter!.secondaryWeapon = null;
+      }
+    });
+  }
+
+  /// Check equipped custom weapons are still valid, unequip if not
+  void validateEquippedCustomWeapons() {
+    _updateField(() {
+      final primary = _currentCharacter!.primaryWeapon;
+
+      // Check primary weapon wasn't deleted
+      if (primary != null &&
+          primary.custom &&
+          !_currentCharacter!.customWeapons
+              .any((weapon) => weapon.id == primary.id)) {
+        _currentCharacter!.primaryWeapon = null;
+      }
+
+      // Check primary weapon is still a primary weapon
+      if (primary?.type == 'secondary') {
+        _currentCharacter!.primaryWeapon = null;
+      }
+
+      // If primary weapon is two-handed, clear secondary weapon
+      if (primary?.burden == WeaponBurden.twoHanded) {
+        _currentCharacter!.secondaryWeapon = null;
+      }
+
+      final secondary = _currentCharacter!.secondaryWeapon;
+
+      // Check secondary weapon wasn't deleted
+      if (secondary != null &&
+          secondary.custom &&
+          !_currentCharacter!.customWeapons
+              .any((weapon) => weapon.id == secondary.id)) {
+        _currentCharacter!.secondaryWeapon = null;
+      }
+
+      // Check secondary weapon is still a secondary weapon
+      if (secondary?.type == 'primary') {
+        _currentCharacter!.secondaryWeapon = null;
+      }
+
+      // If character class has no spellcast trait, clear magic weapons
+      if (_currentCharacter!.subclass?.spellcastTrait == null) {
+        if (primary?.damageType == 'magic') {
+          _currentCharacter!.primaryWeapon = null;
+        }
+        if (secondary?.damageType == 'magic') {
+          _currentCharacter!.secondaryWeapon = null;
+        }
+      }
+    });
+  }
+
   /// Update primary weapon
   void updatePrimaryWeapon(Weapon? weapon) {
     _updateField(() {

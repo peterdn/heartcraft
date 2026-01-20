@@ -14,6 +14,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import 'package:flutter/material.dart';
+import 'package:heartcraft/views/custom_weapon_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/character_provider.dart';
 import '../../providers/edit_mode_provider.dart';
@@ -78,17 +79,44 @@ class EquipmentTab extends StatelessWidget {
                 // HACK? manually wrap Proficiency field to next line if not enough space
                 // Seriously, there has GOT to be a built-in way of doing this
                 const titleWidth = 200.0;
-                const proficiencyWidth = 150.0;
+                final customButtonWidth = editMode ? 120.0 : 0.0;
+                const proficiencyWidth = 140.0;
                 const padding = 16.0;
 
                 final hasSpaceForSameLine = constraints.maxWidth >=
-                    (titleWidth + proficiencyWidth + padding);
+                    (titleWidth +
+                        customButtonWidth +
+                        proficiencyWidth +
+                        padding);
 
                 final titleWidget = Text(
                   'Active Weapons',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: HeartcraftTheme.gold,
                       ),
+                );
+
+                final customWeaponButton = Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => CustomWeaponScreen(),
+                          ),
+                        );
+                      },
+                      child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.edit),
+                            SizedBox(width: 8),
+                            Text('Custom')
+                          ])),
                 );
 
                 final proficiencyWidget = _buildProficiencyField(
@@ -102,13 +130,24 @@ class EquipmentTab extends StatelessWidget {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [titleWidget, proficiencyWidget],
+                    children: [
+                      Row(children: [
+                        titleWidget,
+                        if (editMode) customWeaponButton,
+                      ]),
+                      proficiencyWidget
+                    ],
                   );
                 } else {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      titleWidget,
+                      Row(
+                        children: [
+                          titleWidget,
+                          if (editMode) customWeaponButton,
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       proficiencyWidget,
                     ],
@@ -688,6 +727,9 @@ class EquipmentTab extends StatelessWidget {
                 weapon.name,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: weapon.custom
+                          ? HeartcraftTheme.lightPurple
+                          : HeartcraftTheme.primaryTextColor,
                     ),
               ),
               const SizedBox(height: 4),
@@ -730,28 +772,40 @@ class EquipmentTab extends StatelessWidget {
 
     List<Weapon> availableWeapons;
     List<Weapon> physicalWeapons;
+    List<Weapon> customWeapons;
     List<Weapon> magicWeapons;
     if (isPrimary) {
       physicalWeapons = gameDataService.primaryWeapons
-          .where((w) => w.type == 'physical')
+          .where((w) => w.damageType == 'physical')
           .toList();
       magicWeapons = gameDataService.primaryWeapons
-          .where((w) => w.type == 'magic')
+          .where((w) => w.damageType == 'magic')
           .toList();
+      customWeapons =
+          character.customWeapons.where((w) => w.type == 'primary').toList();
     } else {
       physicalWeapons = gameDataService.secondaryWeapons
-          .where((w) => w.type == 'physical')
+          .where((w) => w.damageType == 'physical')
           .toList();
       magicWeapons = gameDataService.secondaryWeapons
-          .where((w) => w.type == 'magic')
+          .where((w) => w.damageType == 'magic')
           .toList();
+      customWeapons =
+          character.customWeapons.where((w) => w.type == 'secondary').toList();
     }
 
     // Include magic weapons only if character has spellcast trait
     if (character.subclass?.spellcastTrait != null) {
-      availableWeapons = [...physicalWeapons, ...magicWeapons];
+      availableWeapons = [
+        ...physicalWeapons,
+        ...magicWeapons,
+        ...customWeapons
+      ];
     } else {
-      availableWeapons = physicalWeapons;
+      availableWeapons = [
+        ...physicalWeapons,
+        ...customWeapons.where((w) => w.damageType == 'physical')
+      ];
     }
 
     return WeaponDropdown(

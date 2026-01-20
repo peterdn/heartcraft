@@ -106,6 +106,7 @@ void main() {
             (a) => a.id == 'app.heartcraft.homebrew.demo.padded_armor'),
         notes: 'Test character for serialization',
         gold: Gold(handfuls: 5, bags: 2, chests: 1, coins: 7),
+        customWeapons: [],
       );
 
       // 2. Serialise to XML

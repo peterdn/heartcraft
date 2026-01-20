@@ -60,14 +60,14 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
 
     final primaryWeapons = gameDataService.primaryWeapons;
     primaryPhysicalWeapons =
-        primaryWeapons.where((w) => w.type == 'physical').toList();
+        primaryWeapons.where((w) => w.damageType == 'physical').toList();
     primaryMagicWeapons =
-        primaryWeapons.where((w) => w.type == 'magic').toList();
+        primaryWeapons.where((w) => w.damageType == 'magic').toList();
     secondaryWeapons = gameDataService.secondaryWeapons;
     secondaryPhysicalWeapons =
-        secondaryWeapons.where((w) => w.type == 'physical').toList();
+        secondaryWeapons.where((w) => w.damageType == 'physical').toList();
     secondaryMagicWeapons =
-        secondaryWeapons.where((w) => w.type == 'magic').toList();
+        secondaryWeapons.where((w) => w.damageType == 'magic').toList();
     armorList = gameDataService.armor;
     automaticItems = gameDataService.startingItems;
     startingGold = gameDataService.startingGold;

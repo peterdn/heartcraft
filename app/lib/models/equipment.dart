@@ -49,6 +49,95 @@ enum WeaponBurden {
   }
 }
 
+enum Range {
+  melee,
+  veryClose,
+  close,
+  far,
+  veryFar;
+
+  String get displayName {
+    switch (this) {
+      case Range.melee:
+        return 'Melee';
+      case Range.veryClose:
+        return 'Very Close';
+      case Range.close:
+        return 'Close';
+      case Range.far:
+        return 'Far';
+      case Range.veryFar:
+        return 'Very Far';
+    }
+  }
+
+  /// Parse range from XML attribute value
+  static Range fromString(String value) {
+    final normalized = value.toLowerCase().trim();
+    switch (normalized) {
+      case 'melee':
+        return Range.melee;
+      case 'very close':
+        return Range.veryClose;
+      case 'close':
+        return Range.close;
+      case 'far':
+        return Range.far;
+      case 'very far':
+        return Range.veryFar;
+      default:
+        throw FormatException('Unknown range value: $value');
+    }
+  }
+}
+
+enum DamageDie {
+  d4,
+  d6,
+  d8,
+  d10,
+  d12,
+  d20;
+
+  String get displayName {
+    switch (this) {
+      case DamageDie.d4:
+        return 'd4';
+      case DamageDie.d6:
+        return 'd6';
+      case DamageDie.d8:
+        return 'd8';
+      case DamageDie.d10:
+        return 'd10';
+      case DamageDie.d12:
+        return 'd12';
+      case DamageDie.d20:
+        return 'd20';
+    }
+  }
+
+  /// Parse damage die from XML attribute value
+  static DamageDie fromString(String value) {
+    final normalized = value.toLowerCase().trim();
+    switch (normalized) {
+      case 'd4':
+        return DamageDie.d4;
+      case 'd6':
+        return DamageDie.d6;
+      case 'd8':
+        return DamageDie.d8;
+      case 'd10':
+        return DamageDie.d10;
+      case 'd12':
+        return DamageDie.d12;
+      case 'd20':
+        return DamageDie.d20;
+      default:
+        throw FormatException('Unknown damage die value: $value');
+    }
+  }
+}
+
 class Weapon {
   // TODO: make some of this stuff enums or classes
   final String id;
@@ -58,8 +147,10 @@ class Weapon {
   final String damage;
   final WeaponBurden burden;
   final String feature;
+  final String damageType;
   final String type;
   final int tier;
+  bool custom;
 
   Weapon({
     required this.id,
@@ -69,23 +160,29 @@ class Weapon {
     required this.damage,
     required this.burden,
     required this.feature,
+    required this.damageType,
     required this.type,
     required this.tier,
+    this.custom = false,
   });
 
   factory Weapon.fromXml(
-      XmlElement element, String type, int tier, Compendium compendium) {
+      XmlElement element, String damageType, String type, int tier,
+      [Compendium? compendium]) {
     final burdenStr = element.getAttribute('burden') ?? 'unknown';
     return Weapon(
-      id: compendium.fullyQualifiedId(element.getAttribute('id')!),
+      id: compendium?.fullyQualifiedId(element.getAttribute('id')!) ??
+          element.getAttribute('id')!,
       name: element.getAttribute('name') ?? '',
       trait: element.getAttribute('trait') ?? '',
       range: element.getAttribute('range') ?? '',
       damage: element.getAttribute('damage') ?? '',
       burden: WeaponBurden.fromString(burdenStr),
       feature: element.getAttribute('feature') ?? '',
+      damageType: damageType,
       type: type,
       tier: tier,
+      custom: false,
     );
   }
 }

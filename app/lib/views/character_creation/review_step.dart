@@ -242,7 +242,7 @@ class ReviewStep extends StatelessWidget {
     String content = "<none>";
     if (weapon != null) {
       content =
-          '${weapon.name} (${weapon.type}) - ${weapon.trait} • ${weapon.range} • '
+          '${weapon.name} (${weapon.damageType}) - ${weapon.trait} • ${weapon.range} • '
           '${weapon.damage} • ${weapon.burden.displayName}';
     }
     return _buildReviewItem(weaponLabel, content);
