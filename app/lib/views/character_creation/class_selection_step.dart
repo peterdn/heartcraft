@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:heartcraft/models/class.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../services/game_data_service.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
@@ -64,15 +64,15 @@ class ClassSelectionStep extends StatelessWidget {
         const SizedBox(height: 16),
         // List of classes
         Expanded(
-          child: Consumer<CharacterCreationProvider>(
-            builder: (context, characterProvider, child) {
+          child: Consumer<CharacterCreationViewModel>(
+            builder: (context, characterViewModel, child) {
               final classes = context.read<GameDataService>().characterClasses;
 
               if (classes.isEmpty) {
                 return const Center(child: Text('No classes available'));
               }
 
-              final selectedClass = characterProvider.character.characterClass;
+              final selectedClass = characterViewModel.character.characterClass;
 
               return ListView.builder(
                 itemCount: classes.length,
@@ -91,8 +91,8 @@ class ClassSelectionStep extends StatelessWidget {
 
   Widget _buildClassCard(
       BuildContext context, CharacterClass characterClass, bool isSelected) {
-    final characterProvider =
-        Provider.of<CharacterCreationProvider>(context, listen: false);
+    final characterViewModel =
+        Provider.of<CharacterCreationViewModel>(context, listen: false);
 
     return Card(
       key: ValueKey('class_${characterClass.id}'),
@@ -129,7 +129,7 @@ class ClassSelectionStep extends StatelessWidget {
               ],
               // Selected subclass info
               if (isSelected &&
-                  characterProvider.character.subclass != null) ...[
+                  characterViewModel.character.subclass != null) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(8.0),
@@ -141,16 +141,16 @@ class ClassSelectionStep extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Subclass: ${characterProvider.character.subclass!.name}',
+                        'Subclass: ${characterViewModel.character.subclass!.name}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                       ),
-                      if (characterProvider.character.subclass!.description !=
+                      if (characterViewModel.character.subclass!.description !=
                           null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          characterProvider.character.subclass!.description!,
+                          characterViewModel.character.subclass!.description!,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -168,8 +168,8 @@ class ClassSelectionStep extends StatelessWidget {
   /// Show modal bottom sheet for subclass selection
   void _selectClass(BuildContext context, CharacterClass characterClass) async {
     final gameDataService = context.read<GameDataService>();
-    final provider =
-        Provider.of<CharacterCreationProvider>(context, listen: false);
+    final viewModel =
+        Provider.of<CharacterCreationViewModel>(context, listen: false);
 
     final subclassEntities = gameDataService.subclasses[characterClass.id]!;
 
@@ -181,14 +181,14 @@ class ClassSelectionStep extends StatelessWidget {
         characterClass: characterClass,
         subclassEntities: subclassEntities,
         currentSubclass:
-            provider.character.characterClass?.id == characterClass.id
-                ? provider.character.subclass
+            viewModel.character.characterClass?.id == characterClass.id
+                ? viewModel.character.subclass
                 : null,
       ),
     );
 
     if (selectedSubclass != null) {
-      provider.selectClass(characterClass, selectedSubclass);
+      viewModel.selectClass(characterClass, selectedSubclass);
     }
   }
 }

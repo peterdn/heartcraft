@@ -15,15 +15,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/trait.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
 /// Trait assignment step for character creation
 class TraitAssignmentStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const TraitAssignmentStep({super.key, required this.provider});
+  const TraitAssignmentStep({super.key, required this.viewModel});
 
   @override
   TraitAssignmentStepState createState() => TraitAssignmentStepState();
@@ -48,7 +48,7 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
     super.initState();
     _traitAssignments = {
       for (Trait trait in Trait.values)
-        trait: widget.provider.inProgressTraits[trait]
+        trait: widget.viewModel.inProgressTraits[trait]
     };
 
     _initAvailableTraitValues();
@@ -56,7 +56,7 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
 
   void _initAvailableTraitValues() {
     _availableTraitValues =
-        List.from(CharacterCreationProvider.availableTraitValues);
+        List.from(CharacterCreationViewModel.availableTraitValues);
     for (int? assignedValue in _traitAssignments.values) {
       if (assignedValue != null) {
         _availableTraitValues.remove(assignedValue);
@@ -92,7 +92,7 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
               wide: const EdgeInsets.symmetric(horizontal: 24.0),
             ),
             child: Text(
-              'Assign these values to your six traits: ${CharacterCreationProvider.availableTraitValues.map((v) => v >= 0 ? '+$v' : '$v').join(', ')}',
+              'Assign these values to your six traits: ${CharacterCreationViewModel.availableTraitValues.map((v) => v >= 0 ? '+$v' : '$v').join(', ')}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: ResponsiveUtils.responsiveValue(context,
                         narrow: 14, wide: 16),
@@ -275,7 +275,7 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
       _availableTraitValues.remove(value);
       _availableTraitValues.sort((a, b) => b.compareTo(a));
 
-      widget.provider.assignTraits(_traitAssignments);
+      widget.viewModel.assignTraits(_traitAssignments);
     });
   }
 }

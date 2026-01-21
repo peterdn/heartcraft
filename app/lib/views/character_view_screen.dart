@@ -17,9 +17,9 @@ import 'package:flutter/material.dart';
 import 'package:heartcraft/views/character_advancement_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../providers/character_provider.dart';
-import '../providers/edit_mode_provider.dart';
+import '../view_models/edit_mode_view_model.dart';
 import '../routes.dart';
+import '../view_models/character_view_model.dart';
 import 'character_view/resources_tab.dart';
 import 'character_view/abilities_tab.dart';
 import 'character_view/equipment_tab.dart';
@@ -31,7 +31,7 @@ import 'character_view/companion_tab.dart';
 /// - Contains tabs for details, abilities, resources, equipment, and notes
 /// - Optionally shows a companion tab if the character has a companion
 /// - App bar includes buttons for editing, leveling up, and sharing the character
-/// - Edit mode propagates to child tabs via EditModeProvider
+/// - Edit mode propagates to child tabs via EditModeViewModel
 class CharacterViewScreen extends StatefulWidget {
   const CharacterViewScreen({super.key});
 
@@ -48,7 +48,7 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
   void initState() {
     super.initState();
     // If the character has a companion, show the companion tab
-    final tabCount = Provider.of<CharacterProvider>(context, listen: false)
+    final tabCount = Provider.of<CharacterViewModel>(context, listen: false)
                 .currentCharacter
                 ?.companion !=
             null
@@ -60,7 +60,7 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _maxCharacterLevel = prefs.getInt('maxCharacterLevel') ??
-            CharacterProvider.maxCharacterLevel;
+            CharacterViewModel.maxCharacterLevel;
       });
     });
   }
@@ -74,10 +74,10 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => EditModeProvider(),
-      child: Consumer<CharacterProvider>(
-        builder: (context, characterProvider, child) {
-          final character = characterProvider.currentCharacter;
+      create: (_) => EditModeViewModel(),
+      child: Consumer<CharacterViewModel>(
+        builder: (context, characterViewModel, child) {
+          final character = characterViewModel.currentCharacter;
 
           if (character == null) {
             return Scaffold(
@@ -90,8 +90,8 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
             );
           }
 
-          return Consumer<EditModeProvider>(
-            builder: (context, editModeProvider, _) {
+          return Consumer<EditModeViewModel>(
+            builder: (context, editModeViewModel, _) {
               return Scaffold(
                 appBar: AppBar(
                   // Home button to return to character list
@@ -113,10 +113,10 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
                     // Edit mode toggle
                     IconButton(
                       icon: Icon(
-                        editModeProvider.editMode ? Icons.check : Icons.edit,
+                        editModeViewModel.editMode ? Icons.check : Icons.edit,
                       ),
-                      onPressed: editModeProvider.toggleEditMode,
-                      tooltip: editModeProvider.editMode
+                      onPressed: editModeViewModel.toggleEditMode,
+                      tooltip: editModeViewModel.editMode
                           ? 'Save Changes'
                           : 'Edit Character',
                     ),
@@ -146,7 +146,7 @@ class CharacterViewScreenState extends State<CharacterViewScreen>
                         Icons.share,
                       ),
                       onPressed: () {
-                        characterProvider.shareCharacter(context);
+                        characterViewModel.shareCharacter(context);
                       },
                       tooltip: 'Share Character',
                     ),

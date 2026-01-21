@@ -17,7 +17,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:heartcraft/models/experience.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 import '../../services/game_data_service.dart';
@@ -25,9 +25,9 @@ import '../../services/game_data_service.dart';
 /// Experiences selection step for character creation
 /// Features random experience suggestion or manual input
 class ExperiencesStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const ExperiencesStep({super.key, required this.provider});
+  const ExperiencesStep({super.key, required this.viewModel});
 
   @override
   ExperiencesStepState createState() => ExperiencesStepState();
@@ -46,7 +46,7 @@ class ExperiencesStepState extends State<ExperiencesStep> {
   @override
   void initState() {
     super.initState();
-    experiences = widget.provider.character.experiences.map((exp) {
+    experiences = widget.viewModel.character.experiences.map((exp) {
       return {'name': exp.name, 'category': 'Unknown'};
     }).toList();
   }
@@ -201,7 +201,7 @@ When you make an action, you may spend 1 Hope to add the modifier of a relevant 
                           final category = entry.value['category'];
                           // Get the actual Experience object from the character
                           final experienceObj =
-                              widget.provider.character.experiences.firstWhere(
+                              widget.viewModel.character.experiences.firstWhere(
                             (exp) => exp.name == experienceName,
                             orElse: () =>
                                 Experience(name: experienceName, modifier: 2),
@@ -266,10 +266,10 @@ When you make an action, you may spend 1 Hope to add the modifier of a relevant 
 
   void _saveExperiences() {
     if (experiences.isNotEmpty) {
-      widget.provider
+      widget.viewModel
           .addExperiences(experiences.map((e) => e['name']!).toList());
     } else {
-      widget.provider.skipExperiences();
+      widget.viewModel.skipExperiences();
     }
   }
 }

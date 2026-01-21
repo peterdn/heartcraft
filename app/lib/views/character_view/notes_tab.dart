@@ -15,8 +15,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 
 /// Simple note-taking tab for character view
@@ -28,9 +28,9 @@ class NotesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final editMode = context.watch<EditModeProvider>().editMode;
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final editMode = context.watch<EditModeViewModel>().editMode;
+    final character = characterViewModel.currentCharacter;
     if (character == null) return const SizedBox();
 
     return Padding(
@@ -66,7 +66,7 @@ class NotesTab extends StatelessWidget {
                                 border: OutlineInputBorder(),
                               ),
                               onChanged: (value) {
-                                characterProvider.updateNotes(value);
+                                characterViewModel.updateNotes(value);
                               },
                             )
                           : SingleChildScrollView(

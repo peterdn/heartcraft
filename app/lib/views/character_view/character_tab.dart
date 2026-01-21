@@ -16,8 +16,8 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/services/game_data_service.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../models/character.dart';
 import '../../widgets/character_portrait.dart';
@@ -30,9 +30,9 @@ class CharacterTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final editMode = context.watch<EditModeProvider>().editMode;
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final editMode = context.watch<EditModeViewModel>().editMode;
+    final character = characterViewModel.currentCharacter;
     if (character == null) {
       return const Center(
         child: Text('No character selected'),
@@ -45,12 +45,13 @@ class CharacterTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCharacterInfoCard(
-              context, character, characterProvider, editMode),
+              context, character, characterViewModel, editMode),
           _buildDescriptionCard(
-              context, character, characterProvider, editMode),
-          _buildBackgroundCard(context, character, characterProvider, editMode),
+              context, character, characterViewModel, editMode),
+          _buildBackgroundCard(
+              context, character, characterViewModel, editMode),
           _buildConnectionsCard(
-              context, character, characterProvider, editMode),
+              context, character, characterViewModel, editMode),
         ],
       ),
     );
@@ -60,7 +61,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildCharacterInfoCard(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return Card(
@@ -70,11 +71,11 @@ class CharacterTab extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPortrait(context, character, characterProvider, editMode),
+            _buildPortrait(context, character, characterViewModel, editMode),
             const SizedBox(width: 16),
             Expanded(
               child: _buildCharacterDetails(
-                  context, character, characterProvider, editMode),
+                  context, character, characterViewModel, editMode),
             ),
           ],
         ),
@@ -85,19 +86,19 @@ class CharacterTab extends StatelessWidget {
   Widget _buildPortrait(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     if (editMode) {
       return EditableCharacterPortrait(
         portraitPath: character.portraitPath,
         size: 80.0,
-        refreshKey: characterProvider.portraitRefreshKey,
+        refreshKey: characterViewModel.portraitRefreshKey,
         onPickFromGallery: () async {
           _portraitOperation(
             context,
             () async {
-              await characterProvider.updatePortraitFromGallery(context);
+              await characterViewModel.updatePortraitFromGallery(context);
             },
             'Failed to update portrait',
           );
@@ -106,7 +107,7 @@ class CharacterTab extends StatelessWidget {
           _portraitOperation(
             context,
             () async {
-              await characterProvider.takePortraitPhoto(context);
+              await characterViewModel.takePortraitPhoto(context);
             },
             'Failed to take photo',
           );
@@ -115,7 +116,7 @@ class CharacterTab extends StatelessWidget {
           _portraitOperation(
             context,
             () async {
-              await characterProvider.removePortrait();
+              await characterViewModel.removePortrait();
             },
             'Failed to remove portrait',
           );
@@ -126,7 +127,7 @@ class CharacterTab extends StatelessWidget {
     return CharacterPortrait(
       portraitPath: character.portraitPath,
       size: 80.0,
-      refreshKey: characterProvider.portraitRefreshKey,
+      refreshKey: characterViewModel.portraitRefreshKey,
     );
   }
 
@@ -152,17 +153,17 @@ class CharacterTab extends StatelessWidget {
   Widget _buildCharacterDetails(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildNameAndPronouns(context, character, characterProvider, editMode),
+        _buildNameAndPronouns(context, character, characterViewModel, editMode),
         if (editMode) ...[
           // Pronouns are split out below name, in edit mode
           const SizedBox(height: 12),
-          _buildEditablePronouns(character, characterProvider),
+          _buildEditablePronouns(character, characterViewModel),
         ],
         if (!editMode) ...[
           const SizedBox(height: 12),
@@ -175,7 +176,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildNameAndPronouns(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     if (editMode) {
@@ -186,7 +187,7 @@ class CharacterTab extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {
-          characterProvider.updateName(value);
+          characterViewModel.updateName(value);
         },
       );
     }
@@ -220,7 +221,7 @@ class CharacterTab extends StatelessWidget {
 
   Widget _buildEditablePronouns(
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return TextFormField(
       initialValue: character.pronouns ?? '',
@@ -229,7 +230,7 @@ class CharacterTab extends StatelessWidget {
         border: OutlineInputBorder(),
       ),
       onChanged: (value) {
-        characterProvider.updatePronouns(value.isNotEmpty ? value : null);
+        characterViewModel.updatePronouns(value.isNotEmpty ? value : null);
       },
     );
   }
@@ -247,7 +248,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildDescriptionCard(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return SizedBox(
@@ -275,7 +276,7 @@ class CharacterTab extends StatelessWidget {
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (value) {
-                        characterProvider
+                        characterViewModel
                             .updateDescription(value.isNotEmpty ? value : null);
                       },
                     )
@@ -290,7 +291,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildBackgroundCard(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return SizedBox(
@@ -310,7 +311,7 @@ class CharacterTab extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _buildBackgroundContent(
-                  context, character, characterProvider, editMode),
+                  context, character, characterViewModel, editMode),
             ],
           ),
         ),
@@ -321,7 +322,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildBackgroundContent(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     final hasQuestionnaireAnswers =
@@ -338,7 +339,8 @@ class CharacterTab extends StatelessWidget {
             border: OutlineInputBorder(),
           ),
           onChanged: (value) {
-            characterProvider.updateBackground(value.isNotEmpty ? value : null);
+            characterViewModel
+                .updateBackground(value.isNotEmpty ? value : null);
           },
         );
       }
@@ -392,7 +394,7 @@ class CharacterTab extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
-                  characterProvider.updateBackgroundQuestionAnswer(
+                  characterViewModel.updateBackgroundQuestionAnswer(
                     entry.key,
                     value.isNotEmpty ? value : null,
                   );
@@ -440,7 +442,7 @@ class CharacterTab extends StatelessWidget {
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {
-              characterProvider
+              characterViewModel
                   .updateBackground(value.isNotEmpty ? value : null);
             },
           ),
@@ -459,7 +461,7 @@ class CharacterTab extends StatelessWidget {
   Widget _buildConnectionsCard(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return Card(
@@ -482,7 +484,7 @@ class CharacterTab extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () {
-                      _showAddConnectionDialog(context, characterProvider);
+                      _showAddConnectionDialog(context, characterViewModel);
                     },
                   ),
               ],
@@ -491,7 +493,7 @@ class CharacterTab extends StatelessWidget {
             if (character.connections.isEmpty)
               const Text('No connections added')
             else
-              _buildConnectionsList(character, characterProvider, editMode),
+              _buildConnectionsList(character, characterViewModel, editMode),
           ],
         ),
       ),
@@ -500,7 +502,7 @@ class CharacterTab extends StatelessWidget {
 
   Widget _buildConnectionsList(
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return ListView.builder(
@@ -516,7 +518,7 @@ class CharacterTab extends StatelessWidget {
               ? IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    characterProvider.removeConnection(connection);
+                    characterViewModel.removeConnection(connection);
                   },
                 )
               : null,
@@ -528,7 +530,7 @@ class CharacterTab extends StatelessWidget {
   // TODO: make consistent with character creation
   void _showAddConnectionDialog(
     BuildContext context,
-    CharacterProvider provider,
+    CharacterViewModel viewModel,
   ) {
     final controller = TextEditingController();
 
@@ -555,7 +557,7 @@ class CharacterTab extends StatelessWidget {
               onPressed: () {
                 final text = controller.text.trim();
                 if (text.isNotEmpty) {
-                  provider.addConnection(text);
+                  viewModel.addConnection(text);
                   Navigator.pop(dialogContext);
                 }
               },

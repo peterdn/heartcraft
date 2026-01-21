@@ -69,13 +69,13 @@ enum CharacterCreationStep {
   }
 }
 
-/// Provider for managing the character creation wizard state.
+/// ViewModel for managing the character creation wizard state.
 /// This is more complex than just "character state" as we need to
 /// track partial (in-progress) selections, and step completion.
-class CharacterCreationProvider extends ChangeNotifier {
+class CharacterCreationViewModel extends ChangeNotifier {
   final GameDataService gameDataService;
 
-  CharacterCreationProvider({required this.gameDataService});
+  CharacterCreationViewModel({required this.gameDataService});
 
   // Available trait values for character creation
   static const List<int> availableTraitValues = [2, 1, 1, 0, 0, -1];
@@ -159,7 +159,7 @@ class CharacterCreationProvider extends ChangeNotifier {
     return prefs.getBool('character_creation_in_progress') ?? false;
   }
 
-  /// Initialize the provider: called when the app starts
+  /// Initialize the ViewModel: called when the app starts
   Future<void> initialize() async {
     if (await hasCharacterCreationInProgress()) {
       await _loadProgress();

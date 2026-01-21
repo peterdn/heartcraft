@@ -16,7 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/ancestry.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../services/game_data_service.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
@@ -64,13 +64,13 @@ class AncestrySelectionStep extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: Consumer<CharacterCreationProvider>(
-            builder: (context, characterProvider, child) {
+          child: Consumer<CharacterCreationViewModel>(
+            builder: (context, characterViewModel, child) {
               final ancestries = context.read<GameDataService>().ancestries;
-              final selectedAncestry = characterProvider.character.ancestry;
+              final selectedAncestry = characterViewModel.character.ancestry;
               final selectedSecondaryAncestry =
-                  characterProvider.character.secondAncestry;
-              final isMixedMode = characterProvider.isMixedAncestryMode;
+                  characterViewModel.character.secondAncestry;
+              final isMixedMode = characterViewModel.isMixedAncestryMode;
 
               return ListView.builder(
                 itemCount: ancestries.length,
@@ -96,7 +96,7 @@ class AncestrySelectionStep extends StatelessWidget {
                     canThisAncestryBeSecondary
                         ? isSecondarySelected
                         : isPrimarySelected,
-                    characterProvider,
+                    characterViewModel,
                     isSecondary: canThisAncestryBeSecondary,
                     isMixedMode: isMixedMode,
                   );
@@ -114,7 +114,7 @@ class AncestrySelectionStep extends StatelessWidget {
     BuildContext context,
     Ancestry ancestry,
     bool isSelected,
-    CharacterCreationProvider characterProvider, {
+    CharacterCreationViewModel characterViewModel, {
     required bool isSecondary,
     required bool isMixedMode,
   }) {
@@ -135,8 +135,8 @@ class AncestrySelectionStep extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () => isSecondary
-            ? characterProvider.selectSecondaryAncestry(ancestry)
-            : characterProvider.selectAncestry(ancestry),
+            ? characterViewModel.selectSecondaryAncestry(ancestry)
+            : characterViewModel.selectAncestry(ancestry),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -175,7 +175,7 @@ class AncestrySelectionStep extends StatelessWidget {
                       isSelected &&
                       ancestry.features.isNotEmpty) ...[
                     InkWell(
-                      onTap: () => characterProvider
+                      onTap: () => characterViewModel
                           .toggleMixedAncestryMode(!isMixedMode),
                       child: Container(
                         padding: const EdgeInsets.symmetric(

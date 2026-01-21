@@ -16,7 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/community.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../services/game_data_service.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
@@ -62,10 +62,10 @@ class CommunitySelectionStep extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: Consumer<CharacterCreationProvider>(
-            builder: (context, characterProvider, child) {
+          child: Consumer<CharacterCreationViewModel>(
+            builder: (context, characterViewModel, child) {
               final communities = context.read<GameDataService>().communities;
-              final selectedCommunity = characterProvider.character.community;
+              final selectedCommunity = characterViewModel.character.community;
 
               return ListView.builder(
                 itemCount: communities.length,
@@ -77,7 +77,7 @@ class CommunitySelectionStep extends StatelessWidget {
                     context,
                     isSelected,
                     community,
-                    characterProvider,
+                    characterViewModel,
                   );
                 },
               );
@@ -89,7 +89,7 @@ class CommunitySelectionStep extends StatelessWidget {
   }
 
   Widget _buildCommunityCard(BuildContext context, bool isSelected,
-      Community community, CharacterCreationProvider characterProvider) {
+      Community community, CharacterCreationViewModel characterViewModel) {
     return Card(
       margin: const EdgeInsets.symmetric(
         horizontal: 16.0,
@@ -105,7 +105,7 @@ class CommunitySelectionStep extends StatelessWidget {
             : BorderSide.none,
       ),
       child: InkWell(
-        onTap: () => characterProvider.selectCommunity(community),
+        onTap: () => characterViewModel.selectCommunity(community),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

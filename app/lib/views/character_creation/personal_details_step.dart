@@ -14,15 +14,15 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import 'package:flutter/material.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
 /// Personal details step for character creation
 class PersonalDetailsStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const PersonalDetailsStep({super.key, required this.provider});
+  const PersonalDetailsStep({super.key, required this.viewModel});
 
   @override
   PersonalDetailsStepState createState() => PersonalDetailsStepState();
@@ -39,12 +39,12 @@ class PersonalDetailsStepState extends State<PersonalDetailsStep> {
   void initState() {
     super.initState();
     nameController =
-        TextEditingController(text: widget.provider.character.name);
+        TextEditingController(text: widget.viewModel.character.name);
     pronounsController =
-        TextEditingController(text: widget.provider.character.pronouns ?? '');
+        TextEditingController(text: widget.viewModel.character.pronouns ?? '');
     descriptionController = TextEditingController(
-        text: widget.provider.character.description ?? '');
-    connections = List<String>.from(widget.provider.character.connections);
+        text: widget.viewModel.character.description ?? '');
+    connections = List<String>.from(widget.viewModel.character.connections);
 
     // Add listeners for auto-save
     nameController.addListener(_onTextChanged);
@@ -54,7 +54,7 @@ class PersonalDetailsStepState extends State<PersonalDetailsStep> {
 
   void _onTextChanged() {
     // TODO: debounce saves like we do in background setp
-    widget.provider.setPersonalDetails(
+    widget.viewModel.setPersonalDetails(
       name: nameController.text.trim(),
       pronouns:
           pronounsController.text.isNotEmpty ? pronounsController.text : null,

@@ -19,16 +19,16 @@ import 'package:heartcraft/models/domain.dart';
 import 'package:heartcraft/models/experience.dart';
 import 'package:heartcraft/models/character.dart';
 import 'package:heartcraft/models/trait.dart';
-import 'package:heartcraft/providers/character_provider.dart';
-import 'package:heartcraft/providers/character_advancement_provider.dart';
+import 'package:heartcraft/view_models/character_advancement_view_model.dart';
 import 'package:heartcraft/theme/heartcraft_theme.dart';
 import 'package:heartcraft/services/game_data_service.dart';
+import 'package:heartcraft/view_models/character_view_model.dart';
 import 'package:heartcraft/widgets/domain_card.dart';
 import 'package:provider/provider.dart';
 
 // Character advancement screen for leveling up characters
 // TODO: super WIP, needs Tier3+4 suppor, optimised for mobile layout, tidied up
-// Lots of inline logic everywhere.... move to provider or service
+// Lots of inline logic everywhere.... move to ViewModel or service
 class CharacterAdvancementScreen extends StatefulWidget {
   const CharacterAdvancementScreen({super.key});
 
@@ -56,8 +56,8 @@ class CharacterAdvancementScreenState
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter;
 
     if (character == null) {
       return Scaffold(
@@ -68,14 +68,14 @@ class CharacterAdvancementScreenState
 
     return ChangeNotifierProvider(
       create: (_) {
-        final provider = CharacterAdvancementProvider();
-        provider.initialize(character);
-        return provider;
+        final advancementViewModel = CharacterAdvancementViewModel();
+        advancementViewModel.initialize(character);
+        return advancementViewModel;
       },
-      child: Consumer<CharacterAdvancementProvider>(
-        builder: (context, advancementProvider, child) {
-          final newLevel = advancementProvider.newLevel;
-          final isValid = advancementProvider.isValid;
+      child: Consumer<CharacterAdvancementViewModel>(
+        builder: (context, advancementViewModel, child) {
+          final newLevel = advancementViewModel.newLevel;
+          final isValid = advancementViewModel.isValid;
 
           return PopScope(
             canPop: false,
@@ -93,8 +93,8 @@ class CharacterAdvancementScreenState
                 actions: [
                   Padding(
                     padding: const EdgeInsets.only(right: 16.0),
-                    child: _buildLevelUpButton(context, characterProvider,
-                        advancementProvider, isValid),
+                    child: _buildLevelUpButton(context, characterViewModel,
+                        advancementViewModel, isValid),
                   ),
                 ],
               ),
@@ -112,9 +112,9 @@ class CharacterAdvancementScreenState
                               ),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildLevelAchievements(character, advancementProvider),
+                    _buildLevelAchievements(character, advancementViewModel),
                     if (newLevel >= 2)
-                      _buildTier2Advancements(character, advancementProvider),
+                      _buildTier2Advancements(character, advancementViewModel),
                     if (newLevel >= 5) _buildTier3Advancements(character),
                     if (newLevel >= 8) _buildTier4Advancements(character),
                   ],
@@ -156,8 +156,8 @@ class CharacterAdvancementScreenState
   }
 
   Widget _buildLevelAchievements(
-      Character character, CharacterAdvancementProvider advancementProvider) {
-    final newLevel = advancementProvider.newLevel;
+      Character character, CharacterAdvancementViewModel advancementViewModel) {
+    final newLevel = advancementViewModel.newLevel;
 
     final oldThresholds =
         '${character.majorDamageThreshold} / ${character.severeDamageThreshold}';
@@ -233,7 +233,7 @@ class CharacterAdvancementScreenState
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8.0),
-              _buildExperiencesSection(character, advancementProvider),
+              _buildExperiencesSection(character, advancementViewModel),
               const SizedBox(height: 16.0),
             ],
             // Domain card selection (available at all levels)
@@ -243,7 +243,7 @@ class CharacterAdvancementScreenState
             ),
             const SizedBox(height: 8.0),
             _buildLevelAchievementDomainCardSection(
-                character, advancementProvider),
+                character, advancementViewModel),
           ],
         ),
       ),
@@ -251,8 +251,8 @@ class CharacterAdvancementScreenState
   }
 
   Widget _buildExperiencesSection(
-      Character character, CharacterAdvancementProvider advancementProvider) {
-    final newExperienceName = advancementProvider.newExperienceName;
+      Character character, CharacterAdvancementViewModel advancementViewModel) {
+    final newExperienceName = advancementViewModel.newExperienceName;
     final experiences = character.experiences.map((exp) {
       final found = allExperiences.firstWhere(
         (e) => e['name'] == exp.name,
@@ -312,7 +312,7 @@ class CharacterAdvancementScreenState
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                           ),
-                          onPressed: () => _addExperience(advancementProvider),
+                          onPressed: () => _addExperience(advancementViewModel),
                           child: const Icon(Icons.add),
                         ),
                       ),
@@ -369,7 +369,7 @@ class CharacterAdvancementScreenState
                           ? IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () {
-                                advancementProvider.setNewExperience(null);
+                                advancementViewModel.setNewExperience(null);
                                 experienceController.clear();
                               },
                             )
@@ -384,19 +384,19 @@ class CharacterAdvancementScreenState
     );
   }
 
-  void _addExperience(CharacterAdvancementProvider advancementProvider) {
+  void _addExperience(CharacterAdvancementViewModel advancementViewModel) {
     final text = experienceController.text.trim();
-    if (text.isNotEmpty && advancementProvider.newExperienceName == null) {
-      advancementProvider.setNewExperience(text);
+    if (text.isNotEmpty && advancementViewModel.newExperienceName == null) {
+      advancementViewModel.setNewExperience(text);
       experienceController.clear();
     }
   }
 
   Widget _buildLevelAchievementDomainCardSection(
-      Character character, CharacterAdvancementProvider advancementProvider) {
+      Character character, CharacterAdvancementViewModel advancementViewModel) {
     final selectedLevelAchievementDomainCard =
-        advancementProvider.levelAchievementDomainCard;
-    final newLevel = advancementProvider.newLevel;
+        advancementViewModel.levelAchievementDomainCard;
+    final newLevel = advancementViewModel.newLevel;
 
     return Card(
       child: Padding(
@@ -409,7 +409,7 @@ class CharacterAdvancementScreenState
                 onPressed: () => _showDomainCardSelectionDialog(
                   character,
                   newLevel,
-                  advancementProvider,
+                  advancementViewModel,
                   isLevelAchievement: true,
                 ),
                 icon: const Icon(Icons.add),
@@ -438,7 +438,7 @@ class CharacterAdvancementScreenState
                         onPressed: () => _showDomainCardSelectionDialog(
                           character,
                           newLevel,
-                          advancementProvider,
+                          advancementViewModel,
                           isLevelAchievement: true,
                         ),
                       ),
@@ -452,7 +452,7 @@ class CharacterAdvancementScreenState
                     onTap: () => _showDomainCardSelectionDialog(
                       character,
                       newLevel,
-                      advancementProvider,
+                      advancementViewModel,
                       isLevelAchievement: true,
                     ),
                   ),
@@ -485,10 +485,10 @@ class CharacterAdvancementScreenState
   }
 
   Widget _buildTier2Advancements(
-      Character character, CharacterAdvancementProvider advancementProvider) {
-    final tier2 = advancementProvider.tier2;
+      Character character, CharacterAdvancementViewModel advancementViewModel) {
+    final tier2 = advancementViewModel.tier2;
     final remainingSelections =
-        advancementProvider.getRemainingTier2Selections();
+        advancementViewModel.getRemainingTier2Selections();
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -549,7 +549,7 @@ class CharacterAdvancementScreenState
             ),
             const SizedBox(height: 16),
             _buildTraitAdvancement(
-                character, advancementProvider, remainingSelections),
+                character, advancementViewModel, remainingSelections),
             const SizedBox(height: 8),
             _buildSimpleAdvancement(
               context: context,
@@ -559,10 +559,10 @@ class CharacterAdvancementScreenState
               maxCount: 2,
               remainingSelections: remainingSelections,
               onIncrement: () {
-                advancementProvider.incrementHitPoints();
+                advancementViewModel.incrementHitPoints();
               },
               onDecrement: () {
-                advancementProvider.decrementHitPoints();
+                advancementViewModel.decrementHitPoints();
               },
             ),
             const SizedBox(height: 8),
@@ -574,10 +574,10 @@ class CharacterAdvancementScreenState
               maxCount: 2,
               remainingSelections: remainingSelections,
               onIncrement: () {
-                advancementProvider.incrementStress();
+                advancementViewModel.incrementStress();
               },
               onDecrement: () {
-                advancementProvider.decrementStress();
+                advancementViewModel.decrementStress();
               },
             ),
             const SizedBox(height: 8),
@@ -588,15 +588,15 @@ class CharacterAdvancementScreenState
               isSelected: tier2.increaseEvasion,
               remainingSelections: remainingSelections,
               onToggle: () {
-                advancementProvider.toggleEvasion();
+                advancementViewModel.toggleEvasion();
               },
             ),
             const SizedBox(height: 8),
             _buildExperienceAdvancement(
-                character, advancementProvider, remainingSelections),
+                character, advancementViewModel, remainingSelections),
             const SizedBox(height: 8),
             _buildAdditionalDomainCardAdvancement(
-                character, advancementProvider, remainingSelections),
+                character, advancementViewModel, remainingSelections),
           ],
         ),
       ),
@@ -605,11 +605,11 @@ class CharacterAdvancementScreenState
 
   Widget _buildTraitAdvancement(
     Character character,
-    CharacterAdvancementProvider advancementProvider,
+    CharacterAdvancementViewModel advancementViewModel,
     int remainingSelections,
   ) {
-    final tier2 = advancementProvider.tier2;
-    final markedTraits = advancementProvider.markedTraits;
+    final tier2 = advancementViewModel.tier2;
+    final markedTraits = advancementViewModel.markedTraits;
     const maxTraitSelections = 3;
     final canIncrease =
         tier2.increaseTraits < maxTraitSelections && remainingSelections > 0;
@@ -658,7 +658,7 @@ class CharacterAdvancementScreenState
                       color: canIncrease ? HeartcraftTheme.gold : Colors.grey,
                       onPressed: canIncrease
                           ? () {
-                              advancementProvider.incrementTraits();
+                              advancementViewModel.incrementTraits();
                             }
                           : null,
                     ),
@@ -669,7 +669,7 @@ class CharacterAdvancementScreenState
                           : Colors.grey,
                       onPressed: tier2.increaseTraits > 0
                           ? () {
-                              advancementProvider.decrementTraits();
+                              advancementViewModel.decrementTraits();
                             }
                           : null,
                     ),
@@ -739,7 +739,7 @@ class CharacterAdvancementScreenState
                     onSelected: wasAlreadyMarked
                         ? null // Disable selecting already marked traits
                         : (selected) {
-                            advancementProvider.toggleTrait(trait);
+                            advancementViewModel.toggleTrait(trait);
                           },
                     selectedColor: HeartcraftTheme.gold.withValues(alpha: 0.3),
                     checkmarkColor: HeartcraftTheme.gold,
@@ -781,13 +781,13 @@ class CharacterAdvancementScreenState
 
   Widget _buildExperienceAdvancement(
     Character character,
-    CharacterAdvancementProvider advancementProvider,
+    CharacterAdvancementViewModel advancementViewModel,
     int remainingSelections,
   ) {
-    final tier2 = advancementProvider.tier2;
+    final tier2 = advancementViewModel.tier2;
     final selectedExperiencesForBonus =
-        advancementProvider.selectedExperiencesForBonus;
-    final newExperienceName = advancementProvider.newExperienceName;
+        advancementViewModel.selectedExperiencesForBonus;
+    final newExperienceName = advancementViewModel.newExperienceName;
     final canToggle = !tier2.increaseExperiences && remainingSelections > 0;
 
     // Build list of all experiences including the new one from level achievements
@@ -828,7 +828,7 @@ class CharacterAdvancementScreenState
                   value: tier2.increaseExperiences,
                   onChanged: (tier2.increaseExperiences || canToggle)
                       ? (value) {
-                          advancementProvider.toggleIncreaseExperiences();
+                          advancementViewModel.toggleIncreaseExperiences();
                         }
                       : null,
                   activeColor: HeartcraftTheme.gold,
@@ -888,10 +888,10 @@ class CharacterAdvancementScreenState
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected && !isSelected && canSelect) {
-                          advancementProvider
+                          advancementViewModel
                               .toggleExperienceForBonus(exp.name);
                         } else if (!selected && isSelected) {
-                          advancementProvider
+                          advancementViewModel
                               .toggleExperienceForBonus(exp.name);
                         }
                       },
@@ -930,12 +930,12 @@ class CharacterAdvancementScreenState
 
   Widget _buildAdditionalDomainCardAdvancement(
     Character character,
-    CharacterAdvancementProvider advancementProvider,
+    CharacterAdvancementViewModel advancementViewModel,
     int remainingSelections,
   ) {
-    final tier2 = advancementProvider.tier2;
+    final tier2 = advancementViewModel.tier2;
     final selectedAdditionalDomainCard =
-        advancementProvider.additionalDomainCard;
+        advancementViewModel.additionalDomainCard;
     final canToggle = !tier2.additionalDomainCard && remainingSelections > 0;
     final newLevel = character.level + 1;
     final maxLevel = newLevel < 4 ? newLevel : 4;
@@ -972,12 +972,12 @@ class CharacterAdvancementScreenState
                   value: tier2.additionalDomainCard,
                   onChanged: (tier2.additionalDomainCard || canToggle)
                       ? (value) {
-                          advancementProvider.toggleAdditionalDomainCard();
-                          if (advancementProvider.tier2.additionalDomainCard) {
+                          advancementViewModel.toggleAdditionalDomainCard();
+                          if (advancementViewModel.tier2.additionalDomainCard) {
                             _showDomainCardSelectionDialog(
                               character,
                               maxLevel,
-                              advancementProvider,
+                              advancementViewModel,
                               isLevelAchievement: false,
                             );
                           }
@@ -995,7 +995,7 @@ class CharacterAdvancementScreenState
                   onPressed: () => _showDomainCardSelectionDialog(
                     character,
                     maxLevel,
-                    advancementProvider,
+                    advancementViewModel,
                     isLevelAchievement: false,
                   ),
                   icon: const Icon(Icons.add),
@@ -1029,7 +1029,7 @@ class CharacterAdvancementScreenState
                       onTap: () => _showDomainCardSelectionDialog(
                         character,
                         maxLevel,
-                        advancementProvider,
+                        advancementViewModel,
                         isLevelAchievement: false,
                       ),
                     ),
@@ -1043,12 +1043,12 @@ class CharacterAdvancementScreenState
   }
 
   Future<void> _showDomainCardSelectionDialog(Character character, int maxLevel,
-      CharacterAdvancementProvider advancementProvider,
+      CharacterAdvancementViewModel advancementViewModel,
       {bool isLevelAchievement = false}) async {
     final selectedAdditionalDomainCard =
-        advancementProvider.additionalDomainCard;
+        advancementViewModel.additionalDomainCard;
     final selectedLevelAchievementDomainCard =
-        advancementProvider.levelAchievementDomainCard;
+        advancementViewModel.levelAchievementDomainCard;
     final allDomainAbilities = context.read<GameDataService>().domainAbilities;
 
     // Get IDs of domain cards the character already has
@@ -1149,9 +1149,9 @@ class CharacterAdvancementScreenState
 
     if (selected != null) {
       if (isLevelAchievement) {
-        advancementProvider.setLevelAchievementDomainCard(selected);
+        advancementViewModel.setLevelAchievementDomainCard(selected);
       } else {
-        advancementProvider.setAdditionalDomainCard(selected);
+        advancementViewModel.setAdditionalDomainCard(selected);
       }
     }
   }
@@ -1279,13 +1279,13 @@ class CharacterAdvancementScreenState
 
   Widget _buildLevelUpButton(
     BuildContext context,
-    CharacterProvider characterProvider,
-    CharacterAdvancementProvider advancementProvider,
+    CharacterViewModel characterViewModel,
+    CharacterAdvancementViewModel advancementViewModel,
     bool isValid,
   ) {
     return ElevatedButton.icon(
       onPressed: isValid
-          ? () => _performLevelUp(characterProvider, advancementProvider)
+          ? () => _performLevelUp(characterViewModel, advancementViewModel)
           : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: isValid ? HeartcraftTheme.gold : Colors.grey,
@@ -1305,11 +1305,11 @@ class CharacterAdvancementScreenState
     );
   }
 
-  void _performLevelUp(CharacterProvider characterProvider,
-      CharacterAdvancementProvider advancementProvider) {
-    advancementProvider.performLevelUp();
+  void _performLevelUp(CharacterViewModel characterViewModel,
+      CharacterAdvancementViewModel advancementViewModel) {
+    advancementViewModel.performLevelUp();
 
-    characterProvider.saveCharacter();
+    characterViewModel.saveCharacter();
 
     Navigator.of(context).pop();
   }

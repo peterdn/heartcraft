@@ -17,16 +17,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:heartcraft/models/character.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../services/game_data_service.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
 /// Background creation step widget for character creation
 class BackgroundStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const BackgroundStep({super.key, required this.provider});
+  const BackgroundStep({super.key, required this.viewModel});
 
   @override
   BackgroundStepState createState() => BackgroundStepState();
@@ -46,12 +46,12 @@ class BackgroundStepState extends State<BackgroundStep> {
   @override
   void initState() {
     super.initState();
-    backgroundController =
-        TextEditingController(text: widget.provider.character.background ?? '');
+    backgroundController = TextEditingController(
+        text: widget.viewModel.character.background ?? '');
 
     backgroundController.addListener(_onTextChanged);
 
-    _lastClassId = widget.provider.character.characterClass?.id;
+    _lastClassId = widget.viewModel.character.characterClass?.id;
 
     _loadBackgroundQuestions();
   }
@@ -59,7 +59,7 @@ class BackgroundStepState extends State<BackgroundStep> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final currentClassId = widget.provider.character.characterClass?.id;
+    final currentClassId = widget.viewModel.character.characterClass?.id;
     if (currentClassId != _lastClassId) {
       _lastClassId = currentClassId;
       _loadBackgroundQuestions();
@@ -79,7 +79,7 @@ class BackgroundStepState extends State<BackgroundStep> {
   void _loadBackgroundQuestions() {
     if (!mounted) return;
 
-    final character = widget.provider.character;
+    final character = widget.viewModel.character;
 
     if (character.characterClass != null) {
       final gameDataService = context.read<GameDataService>();
@@ -140,7 +140,7 @@ class BackgroundStepState extends State<BackgroundStep> {
 
     final hasGeneralBackground = backgroundController.text.trim().isNotEmpty;
 
-    widget.provider.setBackground(
+    widget.viewModel.setBackground(
       questionnaireAnswers: answers,
       generalBackground:
           hasGeneralBackground ? backgroundController.text.trim() : null,
@@ -191,7 +191,7 @@ class BackgroundStepState extends State<BackgroundStep> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.provider.character.characterClass == null)
+                  if (widget.viewModel.character.characterClass == null)
                     _buildNoClassSelectedInfo()
                   else if (backgroundQuestions.isEmpty)
                     _buildNoQuestionsAvailable()
@@ -247,7 +247,7 @@ class BackgroundStepState extends State<BackgroundStep> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'No background questions available for the ${widget.provider.character.characterClass!.name} class.',
+              'No background questions available for the ${widget.viewModel.character.characterClass!.name} class.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -269,7 +269,7 @@ class BackgroundStepState extends State<BackgroundStep> {
         ),
         const SizedBox(height: 8),
         Text(
-          "These questions help develop your ${widget.provider.character.characterClass!.name}'s background:",
+          "These questions help develop your ${widget.viewModel.character.characterClass!.name}'s background:",
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[400],
               ),

@@ -17,8 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:provider/provider.dart';
 import '../../theme/heartcraft_theme.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 
 /// Displaying and editing character traits
 class TraitsCard extends StatelessWidget {
@@ -28,9 +28,9 @@ class TraitsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final character = characterProvider.currentCharacter;
-    final editMode = context.watch<EditModeProvider>().editMode;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter;
+    final editMode = context.watch<EditModeViewModel>().editMode;
 
     if (character == null) {
       return const Center(
@@ -58,7 +58,7 @@ class TraitsCard extends StatelessWidget {
                   traitValue,
                   editMode,
                   (newValue) {
-                    characterProvider.updateTrait(trait, newValue);
+                    characterViewModel.updateTrait(trait, newValue);
                   },
                 );
               }).toList(),

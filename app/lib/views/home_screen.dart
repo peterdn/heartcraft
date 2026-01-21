@@ -17,10 +17,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:heartcraft/services/portrait_service.dart';
 import 'package:provider/provider.dart';
-import '../providers/character_provider.dart';
+import '../view_models/character_view_model.dart';
 import '../services/character_data_service.dart';
 import '../services/game_data_service.dart';
-import '../providers/character_creation_provider.dart';
+import '../view_models/character_creation_view_model.dart';
 import '../models/character_summary.dart';
 import '../theme/heartcraft_theme.dart';
 import '../routes.dart';
@@ -112,7 +112,7 @@ class HomeScreenState extends State<HomeScreen> {
                     Navigator.pushNamed(context, Routes.manageCompendiums)
                         .then((hasChanges) {
                       // Reload compendiums and characters if changes were made
-                      // TODO: should this be handled via a provider instead?
+                      // TODO: should this be handled via a ViewModel instead?
                       if (hasChanges == true) {
                         _reloadData();
                       }
@@ -196,14 +196,14 @@ class HomeScreenState extends State<HomeScreen> {
         if (_isSelectionMode) {
           _toggleSelection(character.id);
         } else {
-          // Load the character into the provider and navigate to character screen
-          final provider =
-              Provider.of<CharacterProvider>(context, listen: false);
+          // Load the character into the ViewModel and navigate to character screen
+          final viewModel =
+              Provider.of<CharacterViewModel>(context, listen: false);
           final navigator = Navigator.of(context);
           final scaffoldMessenger = ScaffoldMessenger.of(context);
 
           try {
-            await provider.loadCharacter(character.id);
+            await viewModel.loadCharacter(character.id);
             if (!mounted) return;
             navigator.pushNamed(Routes.viewCharacter).then((onValue) {
               // Refresh character list when returning from character view
@@ -271,7 +271,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildCreateNewTile() {
     return InkWell(
       onTap: () {
-        Provider.of<CharacterCreationProvider>(context, listen: false)
+        Provider.of<CharacterCreationViewModel>(context, listen: false)
             .startNewCharacter();
         Navigator.pushNamed(context, Routes.createCharacter).then((value) => {
               // Refresh character list when returning from character creation

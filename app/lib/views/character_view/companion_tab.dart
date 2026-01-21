@@ -16,8 +16,8 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/experience.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../models/companion.dart';
 import '../../services/game_data_service.dart';
@@ -68,17 +68,17 @@ class CompanionTabState extends State<CompanionTab> {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final editMode = context.watch<EditModeProvider>().editMode;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final editMode = context.watch<EditModeViewModel>().editMode;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBasicInfoCard(characterProvider, editMode),
-          _buildCombatCard(characterProvider, editMode),
-          _buildStressCard(characterProvider, editMode),
+          _buildBasicInfoCard(characterViewModel, editMode),
+          _buildCombatCard(characterViewModel, editMode),
+          _buildStressCard(characterViewModel, editMode),
           _buildExperiencesCard(),
         ],
       ),
@@ -86,7 +86,7 @@ class CompanionTabState extends State<CompanionTab> {
   }
 
   Widget _buildBasicInfoCard(
-      CharacterProvider characterProvider, bool editMode) {
+      CharacterViewModel characterViewModel, bool editMode) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
@@ -108,7 +108,7 @@ class CompanionTabState extends State<CompanionTab> {
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
-                            characterProvider.updateCompanionName(value);
+                            characterViewModel.updateCompanionName(value);
                           },
                         )
                       : Text(
@@ -138,7 +138,7 @@ class CompanionTabState extends State<CompanionTab> {
                             hintText: 'e.g., Wolf, Eagle, Bear',
                           ),
                           onChanged: (value) {
-                            characterProvider.updateCompanionSubType(value);
+                            characterViewModel.updateCompanionSubType(value);
                           },
                         )
                       : Text(
@@ -156,7 +156,7 @@ class CompanionTabState extends State<CompanionTab> {
     );
   }
 
-  Widget _buildCombatCard(CharacterProvider characterProvider, bool editMode) {
+  Widget _buildCombatCard(CharacterViewModel characterViewModel, bool editMode) {
     final evasion = widget.companion.evasion;
 
     return Card(
@@ -180,14 +180,14 @@ class CompanionTabState extends State<CompanionTab> {
                   ResourceEditButton(
                     icon: Icons.remove_circle_outline,
                     onPressed: evasion > 1
-                        ? () => characterProvider
+                        ? () => characterViewModel
                             .updateCompanionEvasion(evasion - 1)
                         : null,
                   ),
                   ResourceEditButton(
                     icon: Icons.add_circle_outline,
                     onPressed: () =>
-                        characterProvider.updateCompanionEvasion(evasion + 1),
+                        characterViewModel.updateCompanionEvasion(evasion + 1),
                   ),
                 ],
                 Text(
@@ -252,7 +252,7 @@ class CompanionTabState extends State<CompanionTab> {
                       filled: true,
                     ),
                     onChanged: (value) {
-                      characterProvider.updateCompanionStandardAttack(value);
+                      characterViewModel.updateCompanionStandardAttack(value);
                     },
                   )
                 : Column(
@@ -327,7 +327,7 @@ class CompanionTabState extends State<CompanionTab> {
                           }).toList(),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
-                              characterProvider.updateCompanionRange(newValue);
+                              characterViewModel.updateCompanionRange(newValue);
                             }
                           },
                         )
@@ -407,7 +407,7 @@ class CompanionTabState extends State<CompanionTab> {
                           }).toList(),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
-                              characterProvider
+                              characterViewModel
                                   .updateCompanionDamageDie(newValue);
                             }
                           },
@@ -445,7 +445,7 @@ class CompanionTabState extends State<CompanionTab> {
     );
   }
 
-  Widget _buildStressCard(CharacterProvider characterProvider, bool editMode) {
+  Widget _buildStressCard(CharacterViewModel characterViewModel, bool editMode) {
     final maxStress = widget.companion.maxStress;
     final currentStress = widget.companion.currentStress;
 
@@ -457,12 +457,12 @@ class CompanionTabState extends State<CompanionTab> {
       color: Colors.orange,
       editMode: editMode,
       onMaxDecrement: maxStress > 1
-          ? () => characterProvider.updateCompanionMaxStress(maxStress - 1)
+          ? () => characterViewModel.updateCompanionMaxStress(maxStress - 1)
           : null,
       onMaxIncrement: () =>
-          characterProvider.updateCompanionMaxStress(maxStress + 1),
+          characterViewModel.updateCompanionMaxStress(maxStress + 1),
       onValueChanged: (newValue) {
-        characterProvider.updateCompanionStress(newValue);
+        characterViewModel.updateCompanionStress(newValue);
       },
     );
   }

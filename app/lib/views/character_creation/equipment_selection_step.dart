@@ -15,7 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../models/equipment.dart';
 import '../../models/gold.dart';
@@ -26,9 +26,9 @@ import '../../widgets/armor_dropdown.dart';
 
 /// Equipment selection step widget for character creation
 class EquipmentSelectionStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const EquipmentSelectionStep({super.key, required this.provider});
+  const EquipmentSelectionStep({super.key, required this.viewModel});
 
   @override
   EquipmentSelectionStepState createState() => EquipmentSelectionStepState();
@@ -48,7 +48,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
 
   /// Get class-specific items based on current character class
   List<String> get classItems {
-    final characterClass = widget.provider.character.characterClass;
+    final characterClass = widget.viewModel.character.characterClass;
     if (characterClass == null) return [];
     return gameDataService.classItems[characterClass.id] ?? [];
   }
@@ -134,8 +134,8 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   // Primary Weapon Selection
                   _buildWeaponSection(
                     _getAvailablePrimaryWeapons(),
-                    widget.provider.character.primaryWeapon,
-                    (weapon) => widget.provider.selectPrimaryWeapon(weapon),
+                    widget.viewModel.character.primaryWeapon,
+                    (weapon) => widget.viewModel.selectPrimaryWeapon(weapon),
                   ),
 
                   const SizedBox(height: 24),
@@ -151,15 +151,16 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   const SizedBox(height: 12),
 
                   // Secondary weapon Selection (only if primary is one-handed)
-                  if (widget.provider.character.primaryWeapon?.burden !=
+                  if (widget.viewModel.character.primaryWeapon?.burden !=
                       WeaponBurden.twoHanded)
                     _buildWeaponSection(
                       _getAvailableSecondaryWeapons(),
-                      widget.provider.character.secondaryWeapon,
-                      (weapon) => widget.provider.selectSecondaryWeapon(weapon),
+                      widget.viewModel.character.secondaryWeapon,
+                      (weapon) =>
+                          widget.viewModel.selectSecondaryWeapon(weapon),
                     ),
 
-                  if (widget.provider.character.primaryWeapon?.burden ==
+                  if (widget.viewModel.character.primaryWeapon?.burden ==
                       WeaponBurden.twoHanded)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -222,7 +223,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   /// Get available primary weapons based on character's subclass
   /// If subclass has spellcast trait, include magic weapons
   List<Weapon> _getAvailablePrimaryWeapons() {
-    final character = widget.provider.character;
+    final character = widget.viewModel.character;
     final subclass = character.subclass;
 
     // If subclass has a spellcast trait, include magic weapons
@@ -237,7 +238,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   /// Get available secondary weapons based on character's subclass
   /// If subclass has spellcast trait, include magic weapons
   List<Weapon> _getAvailableSecondaryWeapons() {
-    final character = widget.provider.character;
+    final character = widget.viewModel.character;
     final subclass = character.subclass;
 
     // If subclass has a spellcast trait, include magic weapons
@@ -293,8 +294,8 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         ArmorDropdown(
           armor: armorList,
           maxTier: 1,
-          selectedArmor: widget.provider.character.equippedArmor,
-          onChanged: (armor) => widget.provider.selectArmor(armor),
+          selectedArmor: widget.viewModel.character.equippedArmor,
+          onChanged: (armor) => widget.viewModel.selectArmor(armor),
         ),
       ],
     );
@@ -320,9 +321,9 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         ),
         const SizedBox(height: 12),
         _buildItemDropdown(
-          value: widget.provider.optionGroupSelections[optionGroup.id],
+          value: widget.viewModel.optionGroupSelections[optionGroup.id],
           hint: 'Select from ${optionGroup.name}',
-          onChanged: (selectedItem) => widget.provider
+          onChanged: (selectedItem) => widget.viewModel
               .selectOptionGroupItem(optionGroup.id, selectedItem),
           items: optionGroup.options.map((option) => option.item).toList(),
           itemDescriptions: Map.fromEntries(
@@ -336,7 +337,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   }
 
   Widget _buildClassItemSection() {
-    final hasClass = widget.provider.character.characterClass != null;
+    final hasClass = widget.viewModel.character.characterClass != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,10 +359,10 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         const SizedBox(height: 12),
         if (hasClass && classItems.isNotEmpty)
           _buildItemDropdown(
-            value: widget.provider.selectedClassItem,
+            value: widget.viewModel.selectedClassItem,
             hint: 'Select class item',
             onChanged: (selectedItem) =>
-                widget.provider.selectClassItem(selectedItem),
+                widget.viewModel.selectClassItem(selectedItem),
             items: classItems,
           )
         else

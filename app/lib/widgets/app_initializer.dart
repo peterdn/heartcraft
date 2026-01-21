@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../services/game_data_service.dart';
 import '../services/character_data_service.dart';
-import '../providers/character_creation_provider.dart';
+import '../view_models/character_creation_view_model.dart';
 import '../routes.dart';
 
 /// Headless widget to initialise app services and determine entry route
@@ -49,17 +49,17 @@ class AppInitializerState extends State<AppInitializer> {
 
     if (!mounted) return;
 
-    final characterCreationProvider =
-        Provider.of<CharacterCreationProvider>(context, listen: false);
-    await characterCreationProvider.initialize();
+    final characterCreationViewModel =
+        Provider.of<CharacterCreationViewModel>(context, listen: false);
+    await characterCreationViewModel.initialize();
   }
 
   Future<String> _getEntryRoute(BuildContext context) async {
     // Check if chjaracter creation is in progress, and route accordingly
-    final characterCreationProvider =
-        Provider.of<CharacterCreationProvider>(context, listen: false);
+    final characterCreationViewModel =
+        Provider.of<CharacterCreationViewModel>(context, listen: false);
     final hasProgress =
-        await characterCreationProvider.hasCharacterCreationInProgress();
+        await characterCreationViewModel.hasCharacterCreationInProgress();
     return hasProgress ? Routes.createCharacter : Routes.home;
   }
 }

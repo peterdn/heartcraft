@@ -25,12 +25,13 @@ import '../models/gold.dart';
 import '../services/character_data_service.dart';
 import '../services/portrait_service.dart';
 
-/// Provider for managing the currently active character's state
-class CharacterProvider extends ChangeNotifier {
+/// ViewModel for managing the currently active character,
+/// used by CharacterViewScreen and related widgets.
+class CharacterViewModel extends ChangeNotifier {
   final CharacterDataService dataService;
   final PortraitService portraitService;
 
-  CharacterProvider({
+  CharacterViewModel({
     required this.dataService,
     required this.portraitService,
   });

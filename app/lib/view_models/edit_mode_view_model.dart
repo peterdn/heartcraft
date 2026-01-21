@@ -15,8 +15,8 @@
 
 import 'package:flutter/foundation.dart';
 
-/// Provider for managing edit mode state in the character view
-class EditModeProvider extends ChangeNotifier {
+/// ViewModel for managing edit mode state in the character view
+class EditModeViewModel extends ChangeNotifier {
   bool _editMode = false;
 
   bool get editMode => _editMode;

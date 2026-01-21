@@ -22,8 +22,8 @@ import 'package:heartcraft/widgets/character_view/traits_card.dart';
 import 'package:heartcraft/widgets/domain_card.dart';
 import 'package:heartcraft/widgets/feature_card.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../services/game_data_service.dart';
 
 /// Abilities tab for character view
@@ -57,10 +57,10 @@ class AbilitiesTabState extends State<AbilitiesTab> {
 
   void _addExperience() {
     final text = experienceController.text.trim();
-    final characterProvider = context.read<CharacterProvider>();
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.read<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter;
     if (text.isNotEmpty && character != null) {
-      characterProvider.addExperience(text);
+      characterViewModel.addExperience(text);
       setState(() {
         experienceController.clear();
       });
@@ -69,10 +69,10 @@ class AbilitiesTabState extends State<AbilitiesTab> {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter;
     if (character == null) return const SizedBox();
-    final editMode = context.watch<EditModeProvider>().editMode;
+    final editMode = context.watch<EditModeViewModel>().editMode;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -81,7 +81,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
         children: [
           const TraitsCard(),
           _buildExperiencesCard(
-              context, character, characterProvider, editMode),
+              context, character, characterViewModel, editMode),
           _buildClassFeaturesCard(context, character),
           _buildSubclassFeaturesCard(context, character),
           _buildAncestryFeaturesCard(context, character),
@@ -96,7 +96,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
   Widget _buildExperiencesCard(
     BuildContext context,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     final experiences = character.experiences.map((exp) {
@@ -133,7 +133,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
               ..._buildExperiencesList(
                 experiences,
                 character,
-                characterProvider,
+                characterViewModel,
                 editMode,
               ),
           ],
@@ -179,7 +179,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
   List<Widget> _buildExperiencesList(
     List<Map<String, String>> experiences,
     Character character,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
     bool editMode,
   ) {
     return experiences.asMap().entries.map((entry) {
@@ -206,7 +206,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
                   _buildExperienceModifierField(
                     experienceObj,
                     experienceName,
-                    characterProvider,
+                    characterViewModel,
                   )
                 else
                   Text(
@@ -222,7 +222,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
                 ? IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () =>
-                        characterProvider.removeExperience(experienceName),
+                        characterViewModel.removeExperience(experienceName),
                   )
                 : null,
           ),
@@ -234,7 +234,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
   Widget _buildExperienceModifierField(
     Experience experience,
     String experienceName,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return SizedBox(
       width: 60,
@@ -249,7 +249,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
         onChanged: (value) {
           final newModifier = int.tryParse(value);
           if (newModifier != null) {
-            characterProvider.updateExperienceModifier(
+            characterViewModel.updateExperienceModifier(
               experienceName,
               newModifier,
             );

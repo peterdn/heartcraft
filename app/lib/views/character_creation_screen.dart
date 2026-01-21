@@ -15,8 +15,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/character_creation_provider.dart';
-import '../providers/character_provider.dart';
+import '../view_models/character_creation_view_model.dart';
+import '../view_models/character_view_model.dart';
 import '../theme/heartcraft_theme.dart';
 import '../routes.dart';
 import '../utils/responsive_utils.dart';
@@ -65,8 +65,8 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
         ),
         title: const Text('Create Character'),
       ),
-      body: Consumer<CharacterCreationProvider>(
-        builder: (context, provider, child) {
+      body: Consumer<CharacterCreationViewModel>(
+        builder: (context, viewModel, child) {
           return Padding(
             padding: EdgeInsets.only(bottom: padding.bottom),
             child: Column(
@@ -76,16 +76,16 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
                 if (ResponsiveUtils.isWideScreen(context))
                   Container(
                     padding: const EdgeInsets.all(16.0),
-                    child: _buildStepProgressBar(provider),
+                    child: _buildStepProgressBar(viewModel),
                   ),
 
                 // Current step content (widgets under character_creation/)
                 Expanded(
-                  child: _buildCurrentStepContent(provider),
+                  child: _buildCurrentStepContent(viewModel),
                 ),
 
                 // Previous / Next navigation buttons
-                _buildNavigationButtons(provider),
+                _buildNavigationButtons(viewModel),
               ],
             ),
           );
@@ -95,15 +95,15 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
   }
 
   /// Build the content for the current step
-  Widget _buildCurrentStepContent(CharacterCreationProvider provider) {
+  Widget _buildCurrentStepContent(CharacterCreationViewModel viewModel) {
     Widget stepContent;
 
-    switch (provider.currentStep) {
+    switch (viewModel.currentStep) {
       case CharacterCreationStep.classAndSubclass:
         stepContent = ClassSelectionStep();
         break;
       case CharacterCreationStep.companion:
-        stepContent = CompanionSelectionStep(provider: provider);
+        stepContent = CompanionSelectionStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.ancestry:
         stepContent = const AncestrySelectionStep();
@@ -112,25 +112,25 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
         stepContent = const CommunitySelectionStep();
         break;
       case CharacterCreationStep.traits:
-        stepContent = TraitAssignmentStep(provider: provider);
+        stepContent = TraitAssignmentStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.equipment:
-        stepContent = EquipmentSelectionStep(provider: provider);
+        stepContent = EquipmentSelectionStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.background:
-        stepContent = BackgroundStep(provider: provider);
+        stepContent = BackgroundStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.experiences:
-        stepContent = ExperiencesStep(provider: provider);
+        stepContent = ExperiencesStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.domainCards:
-        stepContent = DomainCardsStep(provider: provider);
+        stepContent = DomainCardsStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.personalDetails:
-        stepContent = PersonalDetailsStep(provider: provider);
+        stepContent = PersonalDetailsStep(viewModel: viewModel);
         break;
       case CharacterCreationStep.review:
-        stepContent = ReviewStep(provider: provider);
+        stepContent = ReviewStep(viewModel: viewModel);
         break;
     }
 
@@ -145,7 +145,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
           Positioned(
             top: 16,
             right: 16,
-            child: _buildStepProgressDropdown(provider),
+            child: _buildStepProgressDropdown(viewModel),
           ),
         ],
       );
@@ -156,7 +156,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
 
   /// Get the list of visible steps based on current character configuration
   List<CharacterCreationStep> _getVisibleSteps(
-      CharacterCreationProvider provider) {
+      CharacterCreationViewModel viewModel) {
     const allSteps = CharacterCreationStep.values;
     final visibleSteps = <CharacterCreationStep>[];
 
@@ -164,7 +164,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
       switch (step) {
         case CharacterCreationStep.companion:
           // Only show companion step if current subclass has a companion
-          if (provider.currentSubclassHasCompanion) {
+          if (viewModel.currentSubclassHasCompanion) {
             visibleSteps.add(step);
           }
           break;
@@ -178,9 +178,9 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
   }
 
   /// Build the progress bar showing all steps, for wide screens
-  Widget _buildStepProgressBar(CharacterCreationProvider provider) {
-    final currentStep = provider.currentStep;
-    final visibleSteps = _getVisibleSteps(provider);
+  Widget _buildStepProgressBar(CharacterCreationViewModel viewModel) {
+    final currentStep = viewModel.currentStep;
+    final visibleSteps = _getVisibleSteps(viewModel);
     final stepCount = visibleSteps.length;
 
     return Column(
@@ -206,7 +206,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
                       flex: 2,
                       child: Container(
                         height: 2,
-                        color: provider.isStepCompleted(visibleSteps[i])
+                        color: viewModel.isStepCompleted(visibleSteps[i])
                             ? HeartcraftTheme.gold
                             : HeartcraftTheme.surfaceColor,
                       ),
@@ -229,7 +229,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
                       onExit: (_) => setState(() => _hoveredStep = null),
                       child: GestureDetector(
                         onTap: () {
-                          provider.goToStep(visibleSteps[i]);
+                          viewModel.goToStep(visibleSteps[i]);
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
@@ -253,7 +253,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
                                   shape: BoxShape.circle,
                                   color: visibleSteps[i] == currentStep
                                       ? HeartcraftTheme.gold
-                                      : provider
+                                      : viewModel
                                               .isStepCompleted(visibleSteps[i])
                                           ? HeartcraftTheme.darkPrimaryPurple
                                           : HeartcraftTheme.surfaceColor,
@@ -265,7 +265,8 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                child: provider.isStepCompleted(visibleSteps[i])
+                                child: viewModel
+                                        .isStepCompleted(visibleSteps[i])
                                     ? Icon(Icons.check,
                                         size: 12,
                                         color: visibleSteps[i] == currentStep
@@ -304,8 +305,8 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
   }
 
   /// Build a compact floating dropdown for narrow screens
-  Widget _buildStepProgressDropdown(CharacterCreationProvider provider) {
-    final visibleSteps = _getVisibleSteps(provider);
+  Widget _buildStepProgressDropdown(CharacterCreationViewModel viewModel) {
+    final visibleSteps = _getVisibleSteps(viewModel);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -323,15 +324,15 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<CharacterCreationStep>(
-          value: provider.currentStep,
+          value: viewModel.currentStep,
           icon: const Icon(Icons.expand_more,
               color: HeartcraftTheme.gold, size: 18),
           dropdownColor: HeartcraftTheme.surfaceColor,
           style: const TextStyle(
               color: HeartcraftTheme.primaryTextColor, fontSize: 14),
           items: visibleSteps.map((step) {
-            final isCompleted = provider.isStepCompleted(step);
-            final isCurrent = step == provider.currentStep;
+            final isCompleted = viewModel.isStepCompleted(step);
+            final isCurrent = step == viewModel.currentStep;
 
             return DropdownMenuItem<CharacterCreationStep>(
               value: step,
@@ -389,7 +390,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
           }).toList(),
           onChanged: (CharacterCreationStep? newStep) {
             if (newStep != null) {
-              provider.goToStep(newStep);
+              viewModel.goToStep(newStep);
             }
           },
         ),
@@ -398,12 +399,12 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
   }
 
   /// Build navigation buttons
-  Widget _buildNavigationButtons(CharacterCreationProvider provider) {
-    final visibleSteps = _getVisibleSteps(provider);
-    final isFirstStep = provider.currentStep == visibleSteps.first;
-    final isLastStep = provider.currentStep == visibleSteps.last;
-    final isStepCompleted = provider.isStepCompleted(provider.currentStep);
-    final isStepOptional = provider.isStepOptional(provider.currentStep);
+  Widget _buildNavigationButtons(CharacterCreationViewModel viewModel) {
+    final visibleSteps = _getVisibleSteps(viewModel);
+    final isFirstStep = viewModel.currentStep == visibleSteps.first;
+    final isLastStep = viewModel.currentStep == visibleSteps.last;
+    final isStepCompleted = viewModel.isStepCompleted(viewModel.currentStep);
+    final isStepOptional = viewModel.isStepOptional(viewModel.currentStep);
 
     final canNavigate = isStepCompleted || isStepOptional;
 
@@ -415,7 +416,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
           // Back button
           if (!isFirstStep)
             ElevatedButton(
-              onPressed: () => provider.goToPreviousStep(),
+              onPressed: () => viewModel.goToPreviousStep(),
               style: TextButton.styleFrom(
                   backgroundColor: HeartcraftTheme.darkPrimaryPurple,
                   foregroundColor: HeartcraftTheme.primaryTextColor),
@@ -427,7 +428,7 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
           // Next button or Create Character button for last step
           if (!isLastStep)
             ElevatedButton(
-              onPressed: canNavigate ? () => provider.goToNextStep() : null,
+              onPressed: canNavigate ? () => viewModel.goToNextStep() : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: HeartcraftTheme.gold,
                 foregroundColor: HeartcraftTheme.darkTextColor,
@@ -437,12 +438,12 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
           else
             // Create Character button for review step
             Tooltip(
-              message: provider.isCharacterComplete()
+              message: viewModel.isCharacterComplete()
                   ? 'Create your character'
                   : 'Complete all required sections to create your character',
               child: ElevatedButton(
-                onPressed: provider.isCharacterComplete()
-                    ? () => _finalizeCharacter(context, provider)
+                onPressed: viewModel.isCharacterComplete()
+                    ? () => _finalizeCharacter(context, viewModel)
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: HeartcraftTheme.gold,
@@ -483,9 +484,10 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
               onPressed: () async {
                 Navigator.of(context).pop(true);
                 // Clear the character creation progress when exiting
-                final provider = Provider.of<CharacterCreationProvider>(context,
+                final viewModel = Provider.of<CharacterCreationViewModel>(
+                    context,
                     listen: false);
-                await provider.exitCharacterCreation();
+                await viewModel.exitCharacterCreation();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: HeartcraftTheme.errorRed,
@@ -500,8 +502,8 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
 
   /// Finalize character creation
   Future<void> _finalizeCharacter(
-      BuildContext context, CharacterCreationProvider provider) async {
-    if (!provider.isCharacterComplete()) {
+      BuildContext context, CharacterCreationViewModel viewModel) async {
+    if (!viewModel.isCharacterComplete()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -511,21 +513,21 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
       return;
     }
 
-    // Copy character from CharacterCreationProvider to CharacterProvider ans save
-    final character = provider.character;
-    final characterProvider =
-        Provider.of<CharacterProvider>(context, listen: false);
-    characterProvider.setCurrentCharacter(character);
+    // Copy character from characterCreationViewModel to characterViewModel ans save
+    final character = viewModel.character;
+    final characterViewModel =
+        Provider.of<CharacterViewModel>(context, listen: false);
+    characterViewModel.setCurrentCharacter(character);
 
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
-      await characterProvider.saveCharacter();
+      await characterViewModel.saveCharacter();
       if (!mounted) return;
 
       // Navigate to character view
-      provider.exitCharacterCreation();
+      viewModel.exitCharacterCreation();
       // Replace the creation screen with character view (home remains underneath)
       navigator.pushReplacementNamed(Routes.viewCharacter);
     } catch (e) {

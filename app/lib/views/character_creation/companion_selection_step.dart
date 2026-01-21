@@ -16,15 +16,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/experience.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
 /// Companion selection step widget for character creation
 class CompanionSelectionStep extends StatefulWidget {
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const CompanionSelectionStep({super.key, required this.provider});
+  const CompanionSelectionStep({super.key, required this.viewModel});
 
   @override
   CompanionSelectionStepState createState() => CompanionSelectionStepState();
@@ -41,10 +41,10 @@ class CompanionSelectionStepState extends State<CompanionSelectionStep> {
   @override
   void initState() {
     super.initState();
-    final provider = widget.provider;
+    final viewModel = widget.viewModel;
 
     // Load character's current companion data
-    final currentCompanion = provider.character.companion;
+    final currentCompanion = viewModel.character.companion;
     if (currentCompanion != null) {
       nameController.text = currentCompanion.name ?? '';
       subTypeController.text = currentCompanion.subType ?? '';
@@ -71,8 +71,8 @@ class CompanionSelectionStepState extends State<CompanionSelectionStep> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = widget.provider;
-    final companion = provider.character.subclass?.companion;
+    final viewModel = widget.viewModel;
+    final companion = viewModel.character.subclass?.companion;
 
     if (companion == null) {
       return const Center(
@@ -282,9 +282,9 @@ class CompanionSelectionStepState extends State<CompanionSelectionStep> {
 
   // Select and display a random experience
   void _randomExperience() {
-    final provider = widget.provider;
+    final viewModel = widget.viewModel;
     final availableCompanionExperiences =
-        provider.character.subclass?.companion?.availableExperiences ?? [];
+        viewModel.character.subclass?.companion?.availableExperiences ?? [];
     if (availableCompanionExperiences.isEmpty) return;
     final available = availableCompanionExperiences
         .where((e) => !experiences.any((ex) => ex.name == e))
@@ -295,10 +295,10 @@ class CompanionSelectionStepState extends State<CompanionSelectionStep> {
   }
 
   void _saveCompanion() {
-    final provider = widget.provider;
+    final viewModel = widget.viewModel;
     final name = nameController.text.trim();
     final subType = subTypeController.text.trim();
 
-    provider.setCompanion(name, subType, experiences);
+    viewModel.setCompanion(name, subType, experiences);
   }
 }

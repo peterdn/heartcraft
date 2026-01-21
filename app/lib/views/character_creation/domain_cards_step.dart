@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:heartcraft/models/domain.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../services/game_data_service.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../widgets/domain_card.dart';
@@ -27,13 +27,13 @@ import '../../utils/responsive_utils.dart';
 class DomainCardsStep extends StatelessWidget {
   static const int maxSelectedAbilities = 2;
 
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const DomainCardsStep({super.key, required this.provider});
+  const DomainCardsStep({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
-    final domains = provider.character.domains;
+    final domains = viewModel.character.domains;
 
     if (domains.length != 2) {
       return const Center(child: Text('Domains not set for this character.'));
@@ -132,10 +132,10 @@ class DomainCardsStep extends StatelessWidget {
     List<DomainAbility> availableAbilities,
     List<Domain> domains,
   ) {
-    // Get current selection from provider
+    // Get current selection from ViewModel
     final selectedAbilities = availableAbilities
-        .where((a) =>
-            provider.character.domainAbilities.any((sel) => sel.name == a.name))
+        .where((a) => viewModel.character.domainAbilities
+            .any((sel) => sel.name == a.name))
         .toList();
 
     final minCardWidth = 350.0;
@@ -179,7 +179,7 @@ class DomainCardsStep extends StatelessWidget {
     );
   }
 
-  // Handle domain card tap, updating selection in provider
+  // Handle domain card tap, updating selection in ViewModel
   void _onDomainCardTap(BuildContext context, DomainAbility ability,
       List<DomainAbility> currentAbilities) {
     final selectedAbilities = List<DomainAbility>.from(currentAbilities);
@@ -190,6 +190,6 @@ class DomainCardsStep extends StatelessWidget {
       selectedAbilities.add(ability);
     }
 
-    provider.setDomainAbilities(selectedAbilities);
+    viewModel.setDomainAbilities(selectedAbilities);
   }
 }

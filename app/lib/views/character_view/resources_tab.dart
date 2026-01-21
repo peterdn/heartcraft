@@ -16,8 +16,8 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/character.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/character_view_model.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../widgets/character_view/resource_card.dart';
 
@@ -30,9 +30,9 @@ class ResourcesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final editMode = context.watch<EditModeProvider>().editMode;
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final editMode = context.watch<EditModeViewModel>().editMode;
+    final character = characterViewModel.currentCharacter;
     if (character == null) return const SizedBox();
 
     final evasion = character.evasion;
@@ -56,14 +56,14 @@ class ResourcesTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildEvasionAndDamageThresholdsCard(
-              context, character, editMode, evasion, characterProvider),
+              context, character, editMode, evasion, characterViewModel),
           _buildArmorCard(
-              context, editMode, maxArmor, currentArmor, characterProvider),
-          _buildHPCard(context, editMode, maxHP, markedHP, characterProvider),
+              context, editMode, maxArmor, currentArmor, characterViewModel),
+          _buildHPCard(context, editMode, maxHP, markedHP, characterViewModel),
           _buildStressCard(
-              context, editMode, maxStress, markedStress, characterProvider),
+              context, editMode, maxStress, markedStress, characterViewModel),
           _buildHopeCard(
-              context, editMode, maxHope, markedHope, characterProvider),
+              context, editMode, maxHope, markedHope, characterViewModel),
         ],
       ),
     );
@@ -74,7 +74,7 @@ class ResourcesTab extends StatelessWidget {
     Character character,
     bool editMode,
     int evasion,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -105,13 +105,13 @@ class ResourcesTab extends StatelessWidget {
                                 ResourceEditButton(
                                   icon: Icons.remove_circle_outline,
                                   onPressed: evasion > 1
-                                      ? () => characterProvider
+                                      ? () => characterViewModel
                                           .updateEvasion(evasion - 1)
                                       : null,
                                 ),
                                 ResourceEditButton(
                                   icon: Icons.add_circle_outline,
-                                  onPressed: () => characterProvider
+                                  onPressed: () => characterViewModel
                                       .updateEvasion(evasion + 1),
                                 ),
                               ],
@@ -172,7 +172,7 @@ class ResourcesTab extends StatelessWidget {
                                 ResourceEditButton(
                                   icon: Icons.remove_circle_outline,
                                   onPressed: character.majorDamageThreshold > 1
-                                      ? () => characterProvider
+                                      ? () => characterViewModel
                                           .updateMajorDamageThreshold(
                                               character.majorDamageThreshold -
                                                   1)
@@ -182,7 +182,7 @@ class ResourcesTab extends StatelessWidget {
                                   icon: Icons.add_circle_outline,
                                   onPressed: character.majorDamageThreshold <
                                           character.severeDamageThreshold - 1
-                                      ? () => characterProvider
+                                      ? () => characterViewModel
                                           .updateMajorDamageThreshold(
                                               character.majorDamageThreshold +
                                                   1)
@@ -247,7 +247,7 @@ class ResourcesTab extends StatelessWidget {
                                   icon: Icons.remove_circle_outline,
                                   onPressed: character.severeDamageThreshold >
                                           character.majorDamageThreshold + 1
-                                      ? () => characterProvider
+                                      ? () => characterViewModel
                                           .updateSevereDamageThreshold(
                                               character.severeDamageThreshold -
                                                   1)
@@ -255,7 +255,7 @@ class ResourcesTab extends StatelessWidget {
                                 ),
                                 ResourceEditButton(
                                   icon: Icons.add_circle_outline,
-                                  onPressed: () => characterProvider
+                                  onPressed: () => characterViewModel
                                       .updateSevereDamageThreshold(
                                           character.severeDamageThreshold + 1),
                                 ),
@@ -308,7 +308,7 @@ class ResourcesTab extends StatelessWidget {
     bool editMode,
     int maxArmor,
     int currentArmor,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return ResourceCard(
       editMode: editMode,
@@ -318,10 +318,10 @@ class ResourcesTab extends StatelessWidget {
       icon: Icons.shield,
       color: Colors.blue,
       onMaxDecrement: maxArmor >= 1
-          ? () => characterProvider.updateMaxArmor(maxArmor - 1)
+          ? () => characterViewModel.updateMaxArmor(maxArmor - 1)
           : null,
-      onMaxIncrement: () => characterProvider.updateMaxArmor(maxArmor + 1),
-      onValueChanged: (value) => characterProvider.updateArmor(value),
+      onMaxIncrement: () => characterViewModel.updateMaxArmor(maxArmor + 1),
+      onValueChanged: (value) => characterViewModel.updateArmor(value),
     );
   }
 
@@ -330,7 +330,7 @@ class ResourcesTab extends StatelessWidget {
     bool editMode,
     int maxHP,
     int markedHP,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return ResourceCard(
       editMode: editMode,
@@ -340,11 +340,11 @@ class ResourcesTab extends StatelessWidget {
       icon: Icons.favorite,
       color: Colors.red,
       onMaxDecrement: maxHP > 1
-          ? () => characterProvider.updateMaxHitPoints(maxHP - 1)
+          ? () => characterViewModel.updateMaxHitPoints(maxHP - 1)
           : null,
-      onMaxIncrement: () => characterProvider.updateMaxHitPoints(maxHP + 1),
+      onMaxIncrement: () => characterViewModel.updateMaxHitPoints(maxHP + 1),
       onValueChanged: (value) =>
-          characterProvider.updateCurrentHitPoints(value),
+          characterViewModel.updateCurrentHitPoints(value),
     );
   }
 
@@ -353,7 +353,7 @@ class ResourcesTab extends StatelessWidget {
     bool editMode,
     int maxStress,
     int markedStress,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return ResourceCard(
       editMode: editMode,
@@ -363,10 +363,10 @@ class ResourcesTab extends StatelessWidget {
       icon: Icons.warning,
       color: Colors.orange,
       onMaxDecrement: maxStress > 1
-          ? () => characterProvider.updateMaxStress(maxStress - 1)
+          ? () => characterViewModel.updateMaxStress(maxStress - 1)
           : null,
-      onMaxIncrement: () => characterProvider.updateMaxStress(maxStress + 1),
-      onValueChanged: (value) => characterProvider.updateStress(value),
+      onMaxIncrement: () => characterViewModel.updateMaxStress(maxStress + 1),
+      onValueChanged: (value) => characterViewModel.updateStress(value),
     );
   }
 
@@ -375,7 +375,7 @@ class ResourcesTab extends StatelessWidget {
     bool editMode,
     int maxHope,
     int markedHope,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return ResourceCard(
       editMode: editMode,
@@ -385,10 +385,10 @@ class ResourcesTab extends StatelessWidget {
       icon: Icons.star,
       color: Colors.green,
       onMaxDecrement: maxHope > 1
-          ? () => characterProvider.updateMaxHope(maxHope - 1)
+          ? () => characterViewModel.updateMaxHope(maxHope - 1)
           : null,
-      onMaxIncrement: () => characterProvider.updateMaxHope(maxHope + 1),
-      onValueChanged: (value) => characterProvider.updateHope(value),
+      onMaxIncrement: () => characterViewModel.updateMaxHope(maxHope + 1),
+      onValueChanged: (value) => characterViewModel.updateHope(value),
     );
   }
 }

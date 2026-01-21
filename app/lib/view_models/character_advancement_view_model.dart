@@ -28,7 +28,7 @@ import '../models/domain.dart';
 /// - Advancement choices (HP, stress, evasion, traits, experiences, domain cards)
 /// - Trait marking
 /// - TODO: Tier 3+4 advancements, multi-classing
-class CharacterAdvancementProvider extends ChangeNotifier {
+class CharacterAdvancementViewModel extends ChangeNotifier {
   Character? _character;
 
   // Level up selections
@@ -52,7 +52,7 @@ class CharacterAdvancementProvider extends ChangeNotifier {
   int get newLevel => (_character?.level ?? 0) + 1;
   bool get isValid => _validateLevelUp();
 
-  /// Initialize provider with character
+  /// Initialize ViewModel with character
   void initialize(Character character) {
     _character = character;
     _tier2 = character.advancements.tier2.copy();

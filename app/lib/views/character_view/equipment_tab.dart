@@ -16,13 +16,13 @@
 import 'package:flutter/material.dart';
 import 'package:heartcraft/views/custom_weapon_screen.dart';
 import 'package:provider/provider.dart';
-import '../../providers/character_provider.dart';
-import '../../providers/edit_mode_provider.dart';
+import '../../view_models/edit_mode_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../models/character.dart';
 import '../../models/gold.dart';
 import '../../models/equipment.dart';
 import '../../services/game_data_service.dart';
+import '../../view_models/character_view_model.dart';
 import '../../widgets/weapon_dropdown.dart';
 import '../../widgets/armor_dropdown.dart';
 
@@ -36,9 +36,9 @@ class EquipmentTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final editMode = context.watch<EditModeProvider>().editMode;
-    final character = characterProvider.currentCharacter;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final editMode = context.watch<EditModeViewModel>().editMode;
+    final character = characterViewModel.currentCharacter;
     if (character == null) return const SizedBox();
 
     return Padding(
@@ -48,15 +48,15 @@ class EquipmentTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildActiveWeaponsSection(
-                context, character, editMode, characterProvider),
+                context, character, editMode, characterViewModel),
             const SizedBox(height: 8),
             _buildActiveArmorSection(
-                context, character, editMode, characterProvider),
+                context, character, editMode, characterViewModel),
             const SizedBox(height: 8),
-            _buildGoldSection(context, character, editMode, characterProvider),
+            _buildGoldSection(context, character, editMode, characterViewModel),
             const SizedBox(height: 8),
             _buildInventorySection(
-                context, character, editMode, characterProvider),
+                context, character, editMode, characterViewModel),
           ],
         ),
       ),
@@ -66,7 +66,7 @@ class EquipmentTab extends StatelessWidget {
   /// Build active weapons section
   /// Includes proficiency field and primary/secondary weapon cards
   Widget _buildActiveWeaponsSection(BuildContext context, Character character,
-      bool editMode, CharacterProvider characterProvider) {
+      bool editMode, CharacterViewModel characterViewModel) {
     final proficiency = character.proficiency;
     return Card(
       child: Padding(
@@ -123,7 +123,7 @@ class EquipmentTab extends StatelessWidget {
                   context,
                   proficiency,
                   editMode,
-                  characterProvider,
+                  characterViewModel,
                 );
 
                 if (hasSpaceForSameLine) {
@@ -163,9 +163,9 @@ class EquipmentTab extends StatelessWidget {
               'Primary Weapon',
               character.primaryWeapon,
               editMode,
-              (weapon) => characterProvider.updatePrimaryWeapon(weapon),
+              (weapon) => characterViewModel.updatePrimaryWeapon(weapon),
               true, // isPrimary
-              characterProvider,
+              characterViewModel,
             ),
             const SizedBox(height: 12),
 
@@ -176,9 +176,9 @@ class EquipmentTab extends StatelessWidget {
               character.secondaryWeapon,
               editMode &&
                   character.primaryWeapon?.burden != WeaponBurden.twoHanded,
-              (weapon) => characterProvider.updateSecondaryWeapon(weapon),
+              (weapon) => characterViewModel.updateSecondaryWeapon(weapon),
               false, // isPrimary
-              characterProvider,
+              characterViewModel,
             ),
 
             // Show constraint message for two-handed weapons
@@ -218,7 +218,7 @@ class EquipmentTab extends StatelessWidget {
     BuildContext context,
     int proficiency,
     bool editMode,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -246,7 +246,7 @@ class EquipmentTab extends StatelessWidget {
                     ),
                 onChanged: (value) {
                   if (value != null) {
-                    characterProvider.updateProficiency(value);
+                    characterViewModel.updateProficiency(value);
                   }
                 },
                 items: List.generate(6, (index) => index + 1)
@@ -282,7 +282,7 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build active armor section
   Widget _buildActiveArmorSection(BuildContext context, Character character,
-      bool editMode, CharacterProvider characterProvider) {
+      bool editMode, CharacterViewModel characterViewModel) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -301,7 +301,7 @@ class EquipmentTab extends StatelessWidget {
               character.equippedArmor,
               character.tier,
               editMode,
-              (armor) => characterProvider.updateEquippedArmor(armor),
+              (armor) => characterViewModel.updateEquippedArmor(armor),
             ),
           ],
         ),
@@ -311,7 +311,7 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build gold display section
   Widget _buildGoldSection(BuildContext context, Character character,
-      bool editMode, CharacterProvider characterProvider) {
+      bool editMode, CharacterViewModel characterViewModel) {
     final gold = character.gold;
 
     return Card(
@@ -335,7 +335,7 @@ class EquipmentTab extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        _showModifyGoldDialog(context, characterProvider);
+                        _showModifyGoldDialog(context, characterViewModel);
                       },
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -400,7 +400,8 @@ class EquipmentTab extends StatelessWidget {
   }
 
   /// Show dialog to modify (add) gold
-  void _showModifyGoldDialog(BuildContext context, CharacterProvider provider) {
+  void _showModifyGoldDialog(
+      BuildContext context, CharacterViewModel viewModel) {
     final chestsController = TextEditingController(text: '0');
     final bagsController = TextEditingController(text: '0');
     final handfulsController = TextEditingController(text: '0');
@@ -420,7 +421,7 @@ class EquipmentTab extends StatelessWidget {
           }
 
           final entered = parseEntered();
-          final available = provider.currentCharacter?.gold ?? Gold.empty();
+          final available = viewModel.currentCharacter?.gold ?? Gold.empty();
           final canAfford =
               available.canAfford(entered) && entered.totalCoins > 0;
 
@@ -482,7 +483,7 @@ class EquipmentTab extends StatelessWidget {
                     Navigator.pop(context);
                     return;
                   }
-                  provider.addGold(entered);
+                  viewModel.addGold(entered);
                   Navigator.pop(context);
                 },
                 child: const Text('Earn'),
@@ -493,7 +494,7 @@ class EquipmentTab extends StatelessWidget {
                 onPressed: canAfford
                     ? () {
                         final toSpend = parseEntered();
-                        provider.spendGold(toSpend);
+                        viewModel.spendGold(toSpend);
                         Navigator.of(context).pop();
                       }
                     : null,
@@ -508,7 +509,7 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build inventory section
   Widget _buildInventorySection(BuildContext context, Character character,
-      bool editMode, CharacterProvider characterProvider) {
+      bool editMode, CharacterViewModel characterViewModel) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -530,7 +531,7 @@ class EquipmentTab extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 16.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          _showAddItemDialog(context, characterProvider);
+                          _showAddItemDialog(context, characterViewModel);
                         },
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -573,19 +574,19 @@ class EquipmentTab extends StatelessWidget {
                                         const Icon(Icons.remove_circle_outline),
                                     onPressed: item.quantity > 1
                                         ? () {
-                                            characterProvider
+                                            characterViewModel
                                                 .updateItemQuantity(
                                                     item.id, item.quantity - 1);
                                           }
                                         : () {
-                                            characterProvider
+                                            characterViewModel
                                                 .removeItem(item.id);
                                           },
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.add_circle_outline),
                                     onPressed: () {
-                                      characterProvider.updateItemQuantity(
+                                      characterViewModel.updateItemQuantity(
                                           item.id, item.quantity + 1);
                                     },
                                   ),
@@ -603,7 +604,7 @@ class EquipmentTab extends StatelessWidget {
   }
 
   /// Show dialog to add item to inventory
-  void _showAddItemDialog(BuildContext context, CharacterProvider provider) {
+  void _showAddItemDialog(BuildContext context, CharacterViewModel viewModel) {
     final nameController = TextEditingController();
     final descController = TextEditingController();
     final quantityController = TextEditingController(text: '1');
@@ -655,7 +656,7 @@ class EquipmentTab extends StatelessWidget {
                   final desc = descController.text.trim();
                   final quantity = int.tryParse(quantityController.text) ?? 1;
 
-                  provider.addItem(
+                  viewModel.addItem(
                     Item(
                       id: 'item_${DateTime.now().millisecondsSinceEpoch}',
                       name: name,
@@ -683,7 +684,7 @@ class EquipmentTab extends StatelessWidget {
     bool canEdit,
     Function(Weapon?) onChanged,
     bool isPrimary,
-    CharacterProvider characterProvider,
+    CharacterViewModel characterViewModel,
   ) {
     return Container(
       padding: const EdgeInsets.all(12.0),
@@ -710,7 +711,7 @@ class EquipmentTab extends StatelessWidget {
           if (canEdit) ...[
             // Edit mode - only show dropdown
             _buildWeaponDropdown(
-                context, isPrimary, onChanged, characterProvider, weapon),
+                context, isPrimary, onChanged, characterViewModel, weapon),
           ] else ...[
             // Display mode - show weapon details or empty state
             if (weapon == null) ...[
@@ -765,10 +766,10 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build weapon dropdown for edit mode
   Widget _buildWeaponDropdown(BuildContext context, bool isPrimary,
-      Function(Weapon?) onChanged, CharacterProvider characterProvider,
+      Function(Weapon?) onChanged, CharacterViewModel characterViewModel,
       [Weapon? currentWeapon]) {
     final gameDataService = context.read<GameDataService>();
-    final character = characterProvider.currentCharacter!;
+    final character = characterViewModel.currentCharacter!;
 
     List<Weapon> availableWeapons;
     List<Weapon> physicalWeapons;

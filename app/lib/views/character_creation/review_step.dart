@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:heartcraft/services/game_data_service.dart';
 import '../../models/character.dart';
-import '../../providers/character_creation_provider.dart';
+import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
@@ -28,13 +28,13 @@ class ReviewStep extends StatelessWidget {
   static const double labelWidth = 120.0;
   static const double itemSpacing = 8.0;
 
-  final CharacterCreationProvider provider;
+  final CharacterCreationViewModel viewModel;
 
-  const ReviewStep({super.key, required this.provider});
+  const ReviewStep({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
-    final character = provider.character;
+    final character = viewModel.character;
     final gameDataService = context.read<GameDataService>();
 
     return Column(

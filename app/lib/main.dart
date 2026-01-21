@@ -20,8 +20,8 @@ import 'package:heartcraft/services/game_data_service.dart';
 import 'package:heartcraft/services/portrait_service.dart';
 import 'package:provider/provider.dart';
 import 'theme/heartcraft_theme.dart';
-import 'providers/character_provider.dart';
-import 'providers/character_creation_provider.dart';
+import 'view_models/character_creation_view_model.dart';
+import 'view_models/character_view_model.dart';
 import 'routes.dart';
 
 void main() async {
@@ -66,12 +66,12 @@ class _HeartcraftAppState extends State<HeartcraftApp> {
         Provider(create: (_) => characterDataService),
         Provider(create: (_) => portraitService),
         ChangeNotifierProvider(
-            create: (_) => CharacterProvider(
+            create: (_) => CharacterViewModel(
                 dataService: characterDataService,
                 portraitService: portraitService)),
         ChangeNotifierProvider(
             create: (_) =>
-                CharacterCreationProvider(gameDataService: gameDataService)),
+                CharacterCreationViewModel(gameDataService: gameDataService)),
       ],
       child: MaterialApp(
         title: 'Heartcraft',

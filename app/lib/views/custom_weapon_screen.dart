@@ -14,7 +14,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import 'package:flutter/material.dart';
-import 'package:heartcraft/providers/character_provider.dart';
+import 'package:heartcraft/view_models/character_view_model.dart';
 import 'package:provider/provider.dart';
 import '../models/equipment.dart';
 import '../theme/heartcraft_theme.dart';
@@ -25,8 +25,8 @@ class CustomWeaponScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterProvider = context.watch<CharacterProvider>();
-    final character = characterProvider.currentCharacter!;
+    final characterViewModel = context.watch<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter!;
 
     return Scaffold(
         appBar: AppBar(title: Text('Manage Weapons'), actions: [
@@ -41,7 +41,7 @@ class CustomWeaponScreen extends StatelessWidget {
                 );
 
                 if (newWeapon != null) {
-                  characterProvider.upsertCustomWeapon(newWeapon);
+                  characterViewModel.upsertCustomWeapon(newWeapon);
                 }
               }),
         ]),
@@ -77,7 +77,7 @@ class CustomWeaponScreen extends StatelessWidget {
   }
 
   Widget _buildWeaponCard(BuildContext context, Weapon weapon) {
-    final characterProvider = context.read<CharacterProvider>();
+    final characterViewModel = context.read<CharacterViewModel>();
 
     final title =
         '${weapon.name} (${weapon.type[0].toUpperCase() + weapon.type.substring(1)} - Tier ${weapon.tier})';
@@ -126,19 +126,19 @@ class CustomWeaponScreen extends StatelessWidget {
                     );
 
                     if (updatedWeapon != null) {
-                      characterProvider.upsertCustomWeapon(updatedWeapon);
+                      characterViewModel.upsertCustomWeapon(updatedWeapon);
 
                       // If the updated weapon was equipped, update its referemce
-                      final character = characterProvider.currentCharacter!;
+                      final character = characterViewModel.currentCharacter!;
                       if (character.primaryWeapon?.id == updatedWeapon.id) {
-                        characterProvider.updatePrimaryWeapon(updatedWeapon);
+                        characterViewModel.updatePrimaryWeapon(updatedWeapon);
                       }
                       if (character.secondaryWeapon?.id == updatedWeapon.id) {
-                        characterProvider.updateSecondaryWeapon(updatedWeapon);
+                        characterViewModel.updateSecondaryWeapon(updatedWeapon);
                       }
 
                       // Re-validate in case weapon type or damage type changed
-                      characterProvider.validateEquippedCustomWeapons();
+                      characterViewModel.validateEquippedCustomWeapons();
                     }
                   }),
               IconButton(
@@ -166,7 +166,7 @@ class CustomWeaponScreen extends StatelessWidget {
                         ),
                       ) ==
                       true) {
-                    characterProvider.deleteCustomWeapon(weapon.id);
+                    characterViewModel.deleteCustomWeapon(weapon.id);
                   }
                 },
               ),
