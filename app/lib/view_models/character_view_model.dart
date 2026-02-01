@@ -489,66 +489,6 @@ class CharacterViewModel extends ChangeNotifier {
     });
   }
 
-  /// Check equipped custom weapons are still valid, unequip if not
-  void validateEquippedCustomWeapons() {
-    _updateField(() {
-      final primary = _currentCharacter!.primaryWeapon;
-
-      // Check primary weapon wasn't deleted
-      if (primary != null &&
-          primary.custom &&
-          !_currentCharacter!.customWeapons
-              .any((weapon) => weapon.id == primary.id)) {
-        _currentCharacter!.primaryWeapon = null;
-      }
-
-      // Check primary weapon is still a primary weapon
-      if (primary?.type == 'secondary') {
-        _currentCharacter!.primaryWeapon = null;
-      }
-
-      // If primary weapon is two-handed, clear secondary weapon
-      if (primary?.burden == WeaponBurden.twoHanded) {
-        _currentCharacter!.secondaryWeapon = null;
-      }
-
-      // If primary weapon tier exceeds character tier, unequip
-      if (primary != null && primary.tier > _currentCharacter!.tier) {
-        _currentCharacter!.primaryWeapon = null;
-      }
-
-      final secondary = _currentCharacter!.secondaryWeapon;
-
-      // Check secondary weapon wasn't deleted
-      if (secondary != null &&
-          secondary.custom &&
-          !_currentCharacter!.customWeapons
-              .any((weapon) => weapon.id == secondary.id)) {
-        _currentCharacter!.secondaryWeapon = null;
-      }
-
-      // Check secondary weapon is still a secondary weapon
-      if (secondary?.type == 'primary') {
-        _currentCharacter!.secondaryWeapon = null;
-      }
-
-      // If character class has no spellcast trait, clear magic weapons
-      if (_currentCharacter!.subclass?.spellcastTrait == null) {
-        if (primary?.damageType == 'magic') {
-          _currentCharacter!.primaryWeapon = null;
-        }
-        if (secondary?.damageType == 'magic') {
-          _currentCharacter!.secondaryWeapon = null;
-        }
-      }
-
-      // If secondary weapon tier exceeds character tier, unequip
-      if (secondary != null && secondary.tier > _currentCharacter!.tier) {
-        _currentCharacter!.secondaryWeapon = null;
-      }
-    });
-  }
-
   /// Add a custom armor, or if it already exists by ID, update it
   void upsertCustomArmor(Armor armor) {
     _updateField(() {
@@ -574,53 +514,27 @@ class CharacterViewModel extends ChangeNotifier {
     });
   }
 
-  /// Check equipped custom armor is still valid, unequip if not
-  void validateEquippedCustomArmor() {
-    _updateField(() {
-      final armor = _currentCharacter!.equippedArmor;
-
-      // Check equipped armor wasn't deleted
-      if (armor != null &&
-          armor.custom &&
-          !_currentCharacter!.customArmor.any((a) => a.id == armor.id)) {
-        _currentCharacter!.equippedArmor = null;
-      }
-
-      // Check tier is still valid for character level
-      if (armor != null && armor.tier > _currentCharacter!.tier) {
-        _currentCharacter!.equippedArmor = null;
-      }
-    });
-  }
-
   /// Update primary weapon
   void updatePrimaryWeapon(Weapon? weapon) {
     _updateField(() {
       _currentCharacter!.primaryWeapon = weapon;
-      // If selecting a two-handed weapon, clear secondary weapon
-      if (weapon?.burden == WeaponBurden.twoHanded) {
-        _currentCharacter!.secondaryWeapon = null;
-      }
+      _currentCharacter!.validateEquippedWeapons();
     });
   }
 
   /// Update secondary weapon
   void updateSecondaryWeapon(Weapon? weapon) {
-    _updateField(() => _currentCharacter!.secondaryWeapon = weapon);
+    _updateField(() {
+      _currentCharacter!.secondaryWeapon = weapon;
+      _currentCharacter!.validateEquippedWeapons();
+    });
   }
 
   /// Update equipped armor
   void updateEquippedArmor(Armor? armor) {
     _updateField(() {
       _currentCharacter!.equippedArmor = armor;
-      // Update max armor based on equipped armor
-      if (armor != null) {
-        _currentCharacter!.maxArmor = armor.baseScore;
-        // Ensure current armor doesn't exceed max
-        if (_currentCharacter!.currentArmor > _currentCharacter!.maxArmor) {
-          _currentCharacter!.currentArmor = _currentCharacter!.maxArmor;
-        }
-      }
+      _currentCharacter!.validateEquippedArmor();
     });
   }
 

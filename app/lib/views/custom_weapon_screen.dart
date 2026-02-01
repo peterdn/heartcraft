@@ -136,9 +136,6 @@ class CustomWeaponScreen extends StatelessWidget {
                       if (character.secondaryWeapon?.id == updatedWeapon.id) {
                         characterViewModel.updateSecondaryWeapon(updatedWeapon);
                       }
-
-                      // Re-validate in case weapon type or damage type changed
-                      characterViewModel.validateEquippedCustomWeapons();
                     }
                   }),
               IconButton(

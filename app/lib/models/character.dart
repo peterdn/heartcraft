@@ -531,7 +531,7 @@ class Character {
       gold = Gold(chests: chests, bags: bags, handfuls: handfuls, coins: coins);
     }
 
-    return Character(
+    final character = Character(
         id: id,
         name: name,
         pronouns: pronouns,
@@ -573,6 +573,12 @@ class Character {
         gold: gold,
         customWeapons: customWeapons,
         customArmor: customArmor);
+
+    // Validation
+    character.validateEquippedWeapons();
+    character.validateEquippedArmor();
+
+    return character;
   }
 
   /// Convert Character to XML string
@@ -914,6 +920,87 @@ class Character {
             : level <= 7
                 ? 3
                 : 4;
+  }
+
+  /// Check equipped weapons are still valid, unequip if not
+  void validateEquippedWeapons() {
+    final primary = primaryWeapon;
+
+    // Check primary weapon wasn't deleted
+    if (primary != null &&
+        primary.custom &&
+        !customWeapons.any((weapon) => weapon.id == primary.id)) {
+      primaryWeapon = null;
+    }
+
+    // Check primary weapon is still a primary weapon
+    if (primary?.type == 'secondary') {
+      primaryWeapon = null;
+    }
+
+    // If primary weapon is two-handed, clear secondary weapon
+    if (primary?.burden == WeaponBurden.twoHanded) {
+      secondaryWeapon = null;
+    }
+
+    // If primary weapon tier exceeds character tier, unequip
+    if (primary != null && primary.tier > tier) {
+      primaryWeapon = null;
+    }
+
+    final secondary = secondaryWeapon;
+
+    // Check secondary weapon wasn't deleted
+    if (secondary != null &&
+        secondary.custom &&
+        !customWeapons.any((weapon) => weapon.id == secondary.id)) {
+      secondaryWeapon = null;
+    }
+
+    // Check secondary weapon is still a secondary weapon
+    if (secondary?.type == 'primary') {
+      secondaryWeapon = null;
+    }
+
+    // If character class has no spellcast trait, clear magic weapons
+    if (subclass?.spellcastTrait == null) {
+      if (primary?.damageType == 'magic') {
+        primaryWeapon = null;
+      }
+      if (secondary?.damageType == 'magic') {
+        secondaryWeapon = null;
+      }
+    }
+
+    // If secondary weapon tier exceeds character tier, unequip
+    if (secondary != null && secondary.tier > tier) {
+      secondaryWeapon = null;
+    }
+  }
+
+  /// Check equipped custom armor is still valid, unequip if not
+  void validateEquippedArmor() {
+    final armor = equippedArmor;
+
+    if (armor == null) return;
+
+    // Check equipped armor wasn't deleted
+    if (armor.custom && !customArmor.any((a) => a.id == armor.id)) {
+      equippedArmor = null;
+    }
+
+    // Check tier is still valid for character level
+    if (armor.tier > tier) {
+      equippedArmor = null;
+    }
+
+    // Update max armor based on equipped armor
+    // TODO: calculate based on other factors too?
+    maxArmor = armor.baseScore;
+    // Ensure current armor doesn't exceed max
+    if (currentArmor > maxArmor) {
+      currentArmor = maxArmor;
+    }
   }
 }
 

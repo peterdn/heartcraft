@@ -132,8 +132,6 @@ class CustomArmorScreen extends StatelessWidget {
                       if (character.equippedArmor?.id == updatedArmor.id) {
                         characterViewModel.updateEquippedArmor(updatedArmor);
                       }
-
-                      characterViewModel.validateEquippedCustomArmor();
                     }
                   }),
               IconButton(
