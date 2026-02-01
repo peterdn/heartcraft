@@ -26,15 +26,14 @@ import '../../widgets/armor_dropdown.dart';
 
 /// Equipment selection step widget for character creation
 class EquipmentSelectionStep extends StatefulWidget {
-  final CharacterCreationViewModel viewModel;
-
-  const EquipmentSelectionStep({super.key, required this.viewModel});
+  const EquipmentSelectionStep({super.key});
 
   @override
   EquipmentSelectionStepState createState() => EquipmentSelectionStepState();
 }
 
 class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
+  late final CharacterCreationViewModel viewModel;
   late final GameDataService gameDataService;
   late final List<Weapon> primaryPhysicalWeapons;
   late final List<Weapon> primaryMagicWeapons;
@@ -48,7 +47,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
 
   /// Get class-specific items based on current character class
   List<String> get classItems {
-    final characterClass = widget.viewModel.character.characterClass;
+    final characterClass = viewModel.character.characterClass;
     if (characterClass == null) return [];
     return gameDataService.classItems[characterClass.id] ?? [];
   }
@@ -56,6 +55,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   @override
   void initState() {
     super.initState();
+    viewModel = context.read<CharacterCreationViewModel>();
     gameDataService = context.read<GameDataService>();
 
     final primaryWeapons = gameDataService.primaryWeapons;
@@ -134,8 +134,8 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   // Primary Weapon Selection
                   _buildWeaponSection(
                     _getAvailablePrimaryWeapons(),
-                    widget.viewModel.character.primaryWeapon,
-                    (weapon) => widget.viewModel.selectPrimaryWeapon(weapon),
+                    viewModel.character.primaryWeapon,
+                    (weapon) => viewModel.selectPrimaryWeapon(weapon),
                   ),
 
                   const SizedBox(height: 24),
@@ -151,16 +151,15 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   const SizedBox(height: 12),
 
                   // Secondary weapon Selection (only if primary is one-handed)
-                  if (widget.viewModel.character.primaryWeapon?.burden !=
+                  if (viewModel.character.primaryWeapon?.burden !=
                       WeaponBurden.twoHanded)
                     _buildWeaponSection(
                       _getAvailableSecondaryWeapons(),
-                      widget.viewModel.character.secondaryWeapon,
-                      (weapon) =>
-                          widget.viewModel.selectSecondaryWeapon(weapon),
+                      viewModel.character.secondaryWeapon,
+                      (weapon) => viewModel.selectSecondaryWeapon(weapon),
                     ),
 
-                  if (widget.viewModel.character.primaryWeapon?.burden ==
+                  if (viewModel.character.primaryWeapon?.burden ==
                       WeaponBurden.twoHanded)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -223,7 +222,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   /// Get available primary weapons based on character's subclass
   /// If subclass has spellcast trait, include magic weapons
   List<Weapon> _getAvailablePrimaryWeapons() {
-    final character = widget.viewModel.character;
+    final character = viewModel.character;
     final subclass = character.subclass;
 
     // If subclass has a spellcast trait, include magic weapons
@@ -238,7 +237,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   /// Get available secondary weapons based on character's subclass
   /// If subclass has spellcast trait, include magic weapons
   List<Weapon> _getAvailableSecondaryWeapons() {
-    final character = widget.viewModel.character;
+    final character = viewModel.character;
     final subclass = character.subclass;
 
     // If subclass has a spellcast trait, include magic weapons
@@ -294,8 +293,8 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         ArmorDropdown(
           armor: armorList,
           maxTier: 1,
-          selectedArmor: widget.viewModel.character.equippedArmor,
-          onChanged: (armor) => widget.viewModel.selectArmor(armor),
+          selectedArmor: viewModel.character.equippedArmor,
+          onChanged: (armor) => viewModel.selectArmor(armor),
         ),
       ],
     );
@@ -321,10 +320,10 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         ),
         const SizedBox(height: 12),
         _buildItemDropdown(
-          value: widget.viewModel.optionGroupSelections[optionGroup.id],
+          value: viewModel.optionGroupSelections[optionGroup.id],
           hint: 'Select from ${optionGroup.name}',
-          onChanged: (selectedItem) => widget.viewModel
-              .selectOptionGroupItem(optionGroup.id, selectedItem),
+          onChanged: (selectedItem) =>
+              viewModel.selectOptionGroupItem(optionGroup.id, selectedItem),
           items: optionGroup.options.map((option) => option.item).toList(),
           itemDescriptions: Map.fromEntries(
             optionGroup.options
@@ -337,7 +336,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   }
 
   Widget _buildClassItemSection() {
-    final hasClass = widget.viewModel.character.characterClass != null;
+    final hasClass = viewModel.character.characterClass != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,10 +358,10 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
         const SizedBox(height: 12),
         if (hasClass && classItems.isNotEmpty)
           _buildItemDropdown(
-            value: widget.viewModel.selectedClassItem,
+            value: viewModel.selectedClassItem,
             hint: 'Select class item',
             onChanged: (selectedItem) =>
-                widget.viewModel.selectClassItem(selectedItem),
+                viewModel.selectClassItem(selectedItem),
             items: classItems,
           )
         else

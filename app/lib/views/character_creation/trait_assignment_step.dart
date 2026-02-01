@@ -15,15 +15,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:heartcraft/models/trait.dart';
+import 'package:provider/provider.dart';
 import '../../view_models/character_creation_view_model.dart';
 import '../../theme/heartcraft_theme.dart';
 import '../../utils/responsive_utils.dart';
 
 /// Trait assignment step for character creation
 class TraitAssignmentStep extends StatefulWidget {
-  final CharacterCreationViewModel viewModel;
-
-  const TraitAssignmentStep({super.key, required this.viewModel});
+  const TraitAssignmentStep({super.key});
 
   @override
   TraitAssignmentStepState createState() => TraitAssignmentStepState();
@@ -46,9 +45,10 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
   @override
   void initState() {
     super.initState();
+    final viewModel =
+        Provider.of<CharacterCreationViewModel>(context, listen: false);
     _traitAssignments = {
-      for (Trait trait in Trait.values)
-        trait: widget.viewModel.inProgressTraits[trait]
+      for (Trait trait in Trait.values) trait: viewModel.inProgressTraits[trait]
     };
 
     _initAvailableTraitValues();
@@ -275,7 +275,8 @@ class TraitAssignmentStepState extends State<TraitAssignmentStep> {
       _availableTraitValues.remove(value);
       _availableTraitValues.sort((a, b) => b.compareTo(a));
 
-      widget.viewModel.assignTraits(_traitAssignments);
+      final viewModel = context.read<CharacterCreationViewModel>();
+      viewModel.assignTraits(_traitAssignments);
     });
   }
 }

@@ -112,10 +112,10 @@ class CharacterCreationScreenState extends State<CharacterCreationScreen> {
         stepContent = const CommunitySelectionStep();
         break;
       case CharacterCreationStep.traits:
-        stepContent = TraitAssignmentStep(viewModel: viewModel);
+        stepContent = const TraitAssignmentStep();
         break;
       case CharacterCreationStep.equipment:
-        stepContent = EquipmentSelectionStep(viewModel: viewModel);
+        stepContent = const EquipmentSelectionStep();
         break;
       case CharacterCreationStep.background:
         stepContent = BackgroundStep(viewModel: viewModel);
