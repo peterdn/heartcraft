@@ -122,7 +122,7 @@ To build an Android APK:
 
 ```bash
 cd app
-flutter build apk --release --build-name=$(cat ../VERSION) --build-number=$(git rev-parse --short HEAD)
+flutter build apk --release --build-name=$(cat ../VERSION)
 ```
 
 ### Packaging for Windows
@@ -131,7 +131,7 @@ To build a Windows executable:
 
 ```bash
 cd app
-flutter build windows --release --build-name=$(cat ../VERSION) --build-number=$(git rev-parse --short HEAD)
+flutter build windows --release --build-name=$(cat ../VERSION)
 ```
 
 Note that this executable is not standalone, it requires:
