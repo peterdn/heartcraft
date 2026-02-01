@@ -87,6 +87,9 @@ class Character {
   // Custom weapons defined for this character
   List<Weapon> customWeapons;
 
+  // Custom armor defined for this character
+  List<Armor> customArmor;
+
   // TODO: tidy up this huge mess of nullables and requireds...
   Character({
     required this.id,
@@ -129,6 +132,7 @@ class Character {
     required this.notes,
     required this.gold,
     required this.customWeapons,
+    required this.customArmor,
   });
 
   static String _generateCharacterId() {
@@ -166,6 +170,7 @@ class Character {
       notes: '',
       gold: Gold.empty(),
       customWeapons: [],
+      customArmor: [],
     );
   }
 
@@ -426,17 +431,6 @@ class Character {
       }
     }
 
-    // Armor
-    Armor? equippedArmor;
-    final equippedArmorElement = characterElement.getElement('equippedArmor');
-    if (equippedArmorElement != null) {
-      final armorId = equippedArmorElement.getAttribute('id');
-      if (armorId != null && armorId.isNotEmpty) {
-        equippedArmor =
-            gameDataService.armor.firstWhere((armor) => armor.id == armorId);
-      }
-    }
-
     // Custom weapons - loaded first so equipped weapons can reference them
     // TODO make consistent with compendium format
     List<Weapon> customWeapons = [];
@@ -484,6 +478,36 @@ class Character {
       } else {
         secondaryWeapon = gameDataService.secondaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
+      }
+    }
+
+    // Custom armor - loaded first so equipped armor can reference it
+    List<Armor> customArmor = [];
+    final customArmorElement = characterElement.getElement('customArmor');
+    if (customArmorElement != null) {
+      for (var armorElement in customArmorElement.findElements('armor')) {
+        final tier = int.parse(armorElement.getAttribute('tier')!);
+        final armor = Armor.fromXml(armorElement, tier);
+        armor.custom = true;
+        customArmor.add(armor);
+      }
+    }
+
+    // Armor
+    Armor? equippedArmor;
+    final equippedArmorElement = characterElement.getElement('equippedArmor');
+    if (equippedArmorElement != null) {
+      final armorId = equippedArmorElement.getAttribute('id');
+      if (armorId != null && armorId.isNotEmpty) {
+        final custom =
+            bool.parse(equippedArmorElement.getAttribute('custom') ?? 'false');
+        if (custom) {
+          equippedArmor =
+              customArmor.firstWhere((armor) => armor.id == armorId);
+        } else {
+          equippedArmor =
+              gameDataService.armor.firstWhere((armor) => armor.id == armorId);
+        }
       }
     }
 
@@ -547,7 +571,8 @@ class Character {
         secondaryWeapon: secondaryWeapon,
         notes: notes,
         gold: gold,
-        customWeapons: customWeapons);
+        customWeapons: customWeapons,
+        customArmor: customArmor);
   }
 
   /// Convert Character to XML string
@@ -733,6 +758,7 @@ class Character {
       if (equippedArmor != null) {
         builder.element('equippedArmor', nest: () {
           builder.attribute('id', equippedArmor!.id);
+          builder.attribute('custom', equippedArmor!.custom.toString());
         });
       }
 
@@ -773,6 +799,23 @@ class Character {
               builder.attribute('feature', weapon.feature);
               builder.attribute('type', weapon.type);
               builder.attribute('tier', weapon.tier.toString());
+            });
+          }
+        });
+      }
+
+      // Custom armor
+      if (customArmor.isNotEmpty) {
+        builder.element('customArmor', nest: () {
+          for (var armor in customArmor) {
+            builder.element('armor', nest: () {
+              builder.attribute('id', armor.id);
+              builder.attribute('name', armor.name);
+              builder.attribute(
+                  'baseThresholds', armor.baseThresholds.toString());
+              builder.attribute('baseScore', armor.baseScore.toString());
+              builder.attribute('feature', armor.feature);
+              builder.attribute('tier', armor.tier.toString());
             });
           }
         });

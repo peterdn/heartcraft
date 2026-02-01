@@ -14,6 +14,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import 'package:flutter/material.dart';
+import 'package:heartcraft/views/custom_armor_screen.dart';
 import 'package:heartcraft/views/custom_weapon_screen.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/edit_mode_view_model.dart';
@@ -283,18 +284,41 @@ class EquipmentTab extends StatelessWidget {
   /// Build active armor section
   Widget _buildActiveArmorSection(BuildContext context, Character character,
       bool editMode, CharacterViewModel characterViewModel) {
+    final customArmorButton = Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const CustomArmorScreen(),
+              ),
+            );
+          },
+          child: const Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.edit),
+            SizedBox(width: 8),
+            Text('Custom')
+          ])),
+    );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Active Armor',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: HeartcraftTheme.gold,
-                  ),
-            ),
+            Row(children: [
+              Text(
+                'Active Armor',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: HeartcraftTheme.gold,
+                    ),
+              ),
+              if (editMode) customArmorButton,
+            ]),
             const SizedBox(height: 16),
             _buildArmorCard(
               context,
@@ -866,6 +890,9 @@ class EquipmentTab extends StatelessWidget {
                 armor.name,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: armor.custom
+                          ? HeartcraftTheme.lightPurple
+                          : HeartcraftTheme.primaryTextColor,
                     ),
               ),
               const SizedBox(height: 4),
@@ -903,7 +930,16 @@ class EquipmentTab extends StatelessWidget {
   Widget _buildArmorDropdown(BuildContext context, Function(Armor?) onChanged,
       Armor? currentArmor, int maxTier) {
     final gameDataService = context.read<GameDataService>();
-    final availableArmor = gameDataService.armor;
+    final gameArmor = gameDataService.armor;
+
+    // Add custom armor from character
+    final characterViewModel = context.read<CharacterViewModel>();
+    final character = characterViewModel.currentCharacter!;
+
+    final availableArmor = [
+      ...gameArmor,
+      ...character.customArmor,
+    ];
 
     return ArmorDropdown(
       armor: availableArmor,

@@ -131,6 +131,9 @@ class ArmorDropdown extends StatelessWidget {
                                     .bodyMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
+                                      color: armorItem.custom
+                                          ? HeartcraftTheme.lightPurple
+                                          : Colors.white,
                                     ),
                               ),
                               const SizedBox(height: 4),

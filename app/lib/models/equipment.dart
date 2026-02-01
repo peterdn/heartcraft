@@ -195,6 +195,7 @@ class Armor {
   final int baseScore;
   final String feature;
   final int tier;
+  bool custom;
 
   // TODO: uhgghggg make class rather than parsing strings
   String get baseThresholds => '$majorDamageThreshold / $severeDamageThreshold';
@@ -207,9 +208,11 @@ class Armor {
     required this.baseScore,
     required this.feature,
     required this.tier,
+    this.custom = false,
   });
 
-  factory Armor.fromXml(XmlElement element, int tier, Compendium compendium) {
+  factory Armor.fromXml(XmlElement element, int tier,
+      [Compendium? compendium]) {
     final thresholds = element.getAttribute('baseThresholds')?.split('/');
 
     if (thresholds == null || thresholds.length != 2) {
@@ -221,7 +224,8 @@ class Armor {
     final severeDamageThreshold = int.parse(thresholds[1].trim());
 
     return Armor(
-      id: compendium.fullyQualifiedId(element.getAttribute('id')!),
+      id: compendium?.fullyQualifiedId(element.getAttribute('id')!) ??
+          element.getAttribute('id')!,
       name: element.getAttribute('name')!,
       majorDamageThreshold: majorDamageThreshold,
       severeDamageThreshold: severeDamageThreshold,

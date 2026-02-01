@@ -107,6 +107,7 @@ void main() {
         notes: 'Test character for serialization',
         gold: Gold(handfuls: 5, bags: 2, chests: 1, coins: 7),
         customWeapons: [],
+        customArmor: [],
       );
 
       // 2. Serialise to XML

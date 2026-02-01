@@ -14,6 +14,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import 'package:flutter/material.dart';
+import 'package:heartcraft/utils/dialogs.dart';
 import 'package:uuid/uuid.dart';
 import '../models/equipment.dart';
 import '../models/trait.dart';
@@ -119,7 +120,7 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        final shouldPop = await _showExitConfirmation(context);
+        final shouldPop = await showExitConfirmation(context, 'weapon');
         if (shouldPop == true && context.mounted) {
           Navigator.of(context).pop();
         }
@@ -380,34 +381,6 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Future<bool?> _showExitConfirmation(BuildContext context) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Discard Weapon?'),
-          content: const Text(
-            'Unsaved changes will be lost. '
-            'Are you sure you want to go back?',
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: HeartcraftTheme.errorRed,
-              ),
-              child: const Text('Discard'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

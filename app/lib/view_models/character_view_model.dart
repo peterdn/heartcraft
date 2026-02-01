@@ -539,6 +539,50 @@ class CharacterViewModel extends ChangeNotifier {
     });
   }
 
+  /// Add a custom armor, or if it already exists by ID, update it
+  void upsertCustomArmor(Armor armor) {
+    _updateField(() {
+      final index =
+          _currentCharacter!.customArmor.indexWhere((a) => a.id == armor.id);
+      if (index >= 0) {
+        _currentCharacter!.customArmor[index] = armor;
+      } else {
+        _currentCharacter!.customArmor.add(armor);
+      }
+    });
+  }
+
+  /// Delete a custom armor by ID
+  void deleteCustomArmor(String armorId) {
+    _updateField(() {
+      _currentCharacter!.customArmor
+          .removeWhere((armor) => armor.id == armorId);
+      // Also unequip if currently equipped
+      if (_currentCharacter!.equippedArmor?.id == armorId) {
+        _currentCharacter!.equippedArmor = null;
+      }
+    });
+  }
+
+  /// Check equipped custom armor is still valid, unequip if not
+  void validateEquippedCustomArmor() {
+    _updateField(() {
+      final armor = _currentCharacter!.equippedArmor;
+
+      // Check equipped armor wasn't deleted
+      if (armor != null &&
+          armor.custom &&
+          !_currentCharacter!.customArmor.any((a) => a.id == armor.id)) {
+        _currentCharacter!.equippedArmor = null;
+      }
+
+      // Check tier is still valid for character level
+      if (armor != null && armor.tier > _currentCharacter!.tier) {
+        _currentCharacter!.equippedArmor = null;
+      }
+    });
+  }
+
   /// Update primary weapon
   void updatePrimaryWeapon(Weapon? weapon) {
     _updateField(() {
