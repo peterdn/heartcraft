@@ -22,6 +22,7 @@ Currently in **early alpha**, Heartcraft supports the following high-level featu
 - Track character stats, abilities, resources, equipment, inventory, and gold
 - Level-up characters (ℹ️ currently capped to tier 2 / level 4)
 - Import and manage compendiums of user-provided game data
+- Manage character-specific custom weapons and armor
 - Cross-platform - so far tested on:
   - Windows 11
   - Android 7 (Samsung Galaxy Tab S2)
@@ -75,7 +76,7 @@ need at my own game table. Upcoming TODOs include:
 
 - [ ] Finish level-up, i.e. support tier 3 and 4 advancements, including multiclassing
 - [ ] Domain card vault
-- [ ] Inventory and custom weapons
+- [ ] Inventory weapons
 - [ ] Support for large, tier-dependent features (e.g. like Druid Beastform)
 - [ ] Ability resource/token management (e.g. Prayer dice tracker)
 - [ ] ... general UI and UX improvements across the board (currently prioritises "function over form")!
