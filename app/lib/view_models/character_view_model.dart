@@ -512,6 +512,11 @@ class CharacterViewModel extends ChangeNotifier {
         _currentCharacter!.secondaryWeapon = null;
       }
 
+      // If primary weapon tier exceeds character tier, unequip
+      if (primary != null && primary.tier > _currentCharacter!.tier) {
+        _currentCharacter!.primaryWeapon = null;
+      }
+
       final secondary = _currentCharacter!.secondaryWeapon;
 
       // Check secondary weapon wasn't deleted
@@ -535,6 +540,11 @@ class CharacterViewModel extends ChangeNotifier {
         if (secondary?.damageType == 'magic') {
           _currentCharacter!.secondaryWeapon = null;
         }
+      }
+
+      // If secondary weapon tier exceeds character tier, unequip
+      if (secondary != null && secondary.tier > _currentCharacter!.tier) {
+        _currentCharacter!.secondaryWeapon = null;
       }
     });
   }
