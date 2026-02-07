@@ -83,6 +83,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
     // - Dynamic Option Groups from compendium e.g. starting potion
     // - Class-specific item
     // - List of automatic starting items and gold
+    context.watch<CharacterCreationViewModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
