@@ -771,6 +771,13 @@ class EquipmentTab extends StatelessWidget {
                       color: Colors.grey[300],
                     ),
               ),
+              const SizedBox(height: 2),
+              Text(
+                'Burden: ${weapon.burden.displayName}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[300],
+                    ),
+              ),
               if (weapon.feature.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(
