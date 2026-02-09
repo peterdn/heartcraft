@@ -80,7 +80,7 @@ class CustomWeaponScreen extends StatelessWidget {
     final characterViewModel = context.read<CharacterViewModel>();
 
     final title =
-        '${weapon.name} (${weapon.type[0].toUpperCase() + weapon.type.substring(1)} - Tier ${weapon.tier})';
+        '${weapon.name} (${weapon.type.displayName} - Tier ${weapon.tier})';
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(

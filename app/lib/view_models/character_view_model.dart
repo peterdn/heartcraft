@@ -530,10 +530,98 @@ class CharacterViewModel extends ChangeNotifier {
     });
   }
 
+  /// Add a new inventory weapon
+  void addInventoryWeapon(Weapon weapon) {
+    _updateField(() {
+      if (_currentCharacter!.inventoryWeapons.length < 2) {
+        _currentCharacter!.inventoryWeapons.add(weapon);
+      }
+    });
+  }
+
+  /// Update inventory weapon by index (0 or 1)
+  void updateInventoryWeapon(int index, Weapon? weapon) {
+    if (index < 0 || index >= 2) return;
+    _updateField(() {
+      if (weapon == null) {
+        if (index < _currentCharacter!.inventoryWeapons.length) {
+          _currentCharacter!.inventoryWeapons.removeAt(index);
+        }
+      } else {
+        if (index < _currentCharacter!.inventoryWeapons.length) {
+          _currentCharacter!.inventoryWeapons[index] = weapon;
+        } else if (_currentCharacter!.inventoryWeapons.length < 2) {
+          _currentCharacter!.inventoryWeapons.add(weapon);
+        }
+      }
+    });
+  }
+
+  /// Returns true if the inventory weapon at the given index can
+  /// be swapped with a currently active weapon
+  bool canSwapInventoryWeaponWithActive(int index) {
+    if (index < 0 || index >= _currentCharacter!.inventoryWeapons.length) {
+      return false;
+    }
+    final inventoryWeapon = _currentCharacter!.inventoryWeapons[index];
+    final secondary = _currentCharacter!.secondaryWeapon;
+
+    // Can only swap a 2h weapon with 1h if there is a free
+    // inventory slot to move the secondary weapon
+    if (inventoryWeapon.burden == WeaponBurden.twoHanded &&
+        secondary != null &&
+        _currentCharacter!.inventoryWeapons.length >= 2) {
+      return false;
+    }
+
+    // Can only swap in a secondary if currently equipped
+    // primary weapon is not 2h
+    if (inventoryWeapon.type == WeaponType.secondary) {
+      final primary = _currentCharacter!.primaryWeapon;
+      if (primary != null && primary.burden == WeaponBurden.twoHanded) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Swap the inventory weapon at the given index with the currently equipped
+  /// weapon of the same type. Will also swap outan equipped secondary if
+  /// swapping in a 2h, if there is enough inventory space to hold it
+  void swapInventoryWeaponWithActive(int index) {
+    if (!canSwapInventoryWeaponWithActive(index)) return;
+
+    _updateField(() {
+      final inventoryWeapon = _currentCharacter!.inventoryWeapons[index];
+
+      if (inventoryWeapon.type == WeaponType.primary) {
+        if (inventoryWeapon.burden == WeaponBurden.twoHanded &&
+            _currentCharacter!.secondaryWeapon != null &&
+            _currentCharacter!.inventoryWeapons.length < 2) {
+          // If swapping in a 2h primary and there is only one
+          // inventory slot, move secondary to inventory
+          addInventoryWeapon(_currentCharacter!.secondaryWeapon!);
+          _currentCharacter!.secondaryWeapon = null;
+        }
+        final temp = _currentCharacter!.primaryWeapon;
+        _currentCharacter!.primaryWeapon = inventoryWeapon;
+        updateInventoryWeapon(index, temp);
+      } else {
+        final temp = _currentCharacter!.secondaryWeapon;
+        _currentCharacter!.secondaryWeapon = inventoryWeapon;
+        updateInventoryWeapon(index, temp);
+      }
+
+      _currentCharacter!.validateEquippedWeapons();
+    });
+  }
+
   /// Update equipped armor
   void updateEquippedArmor(Armor? armor) {
     _updateField(() {
       _currentCharacter!.equippedArmor = armor;
+      _currentCharacter!.maxArmor = armor?.baseScore ?? 0;
       _currentCharacter!.validateEquippedArmor();
     });
   }

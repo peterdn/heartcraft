@@ -76,7 +76,6 @@ need at my own game table. Upcoming TODOs include:
 
 - [ ] Finish level-up, i.e. support tier 3 and 4 advancements, including multiclassing
 - [ ] Domain card vault
-- [ ] Inventory weapons
 - [ ] Support for large, tier-dependent features (e.g. like Druid Beastform)
 - [ ] Ability resource/token management (e.g. Prayer dice tracker)
 - [ ] ... general UI and UX improvements across the board (currently prioritises "function over form")!

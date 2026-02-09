@@ -77,11 +77,11 @@ class Character {
   Companion? companion;
 
   // Equipment and inventory
-  // TODO: inventory weapons
   List<Item> inventory;
   Armor? equippedArmor;
   Weapon? primaryWeapon;
   Weapon? secondaryWeapon;
+  List<Weapon> inventoryWeapons;
   Gold gold;
 
   // Custom weapons defined for this character
@@ -129,6 +129,7 @@ class Character {
     this.equippedArmor,
     this.primaryWeapon,
     this.secondaryWeapon,
+    required this.inventoryWeapons,
     required this.notes,
     required this.gold,
     required this.customWeapons,
@@ -167,6 +168,7 @@ class Character {
       connections: [],
       domainAbilities: [],
       inventory: [],
+      inventoryWeapons: [],
       notes: '',
       gold: Gold.empty(),
       customWeapons: [],
@@ -437,11 +439,12 @@ class Character {
     final customWeaponsElement = characterElement.getElement('customWeapons');
     if (customWeaponsElement != null) {
       for (var weaponElement in customWeaponsElement.findElements('weapon')) {
-        final type = weaponElement.getAttribute('type') ?? 'primary';
+        final type = WeaponType.fromString(
+            weaponElement.getAttribute('type') ?? 'primary');
         final damageType =
             weaponElement.getAttribute('damage')!.split(' ')[1] == 'mag'
-                ? 'magic'
-                : 'physical';
+                ? DamageType.magic
+                : DamageType.physical;
         final tier = int.parse(weaponElement.getAttribute('tier')!);
         final weapon = Weapon.fromXml(weaponElement, damageType, type, tier);
         weapon.custom = true;
@@ -478,6 +481,26 @@ class Character {
       } else {
         secondaryWeapon = gameDataService.secondaryWeapons
             .firstWhere((weapon) => weapon.id == weaponId);
+      }
+    }
+
+    // Inventory weapons
+    List<Weapon> inventoryWeapons = [];
+    final inventoryWeaponsElement =
+        characterElement.getElement('inventoryWeapons');
+    if (inventoryWeaponsElement != null) {
+      for (var weaponElement
+          in inventoryWeaponsElement.findElements('weapon')) {
+        final weaponId = weaponElement.getAttribute('id')!;
+        final custom =
+            bool.parse(weaponElement.getAttribute('custom') ?? 'false');
+        if (custom) {
+          inventoryWeapons
+              .add(customWeapons.firstWhere((weapon) => weapon.id == weaponId));
+        } else {
+          inventoryWeapons.add(gameDataService.weapons
+              .firstWhere((weapon) => weapon.id == weaponId));
+        }
       }
     }
 
@@ -569,6 +592,7 @@ class Character {
         equippedArmor: equippedArmor,
         primaryWeapon: primaryWeapon,
         secondaryWeapon: secondaryWeapon,
+        inventoryWeapons: inventoryWeapons,
         notes: notes,
         gold: gold,
         customWeapons: customWeapons,
@@ -783,6 +807,18 @@ class Character {
         });
       }
 
+      // Inventory weapons
+      if (inventoryWeapons.isNotEmpty) {
+        builder.element('inventoryWeapons', nest: () {
+          for (var weapon in inventoryWeapons) {
+            builder.element('weapon', nest: () {
+              builder.attribute('id', weapon.id);
+              builder.attribute('custom', weapon.custom.toString());
+            });
+          }
+        });
+      }
+
       // Gold
       builder.element('gold', nest: () {
         builder.element('chest', nest: gold.chests.toString());
@@ -803,7 +839,7 @@ class Character {
               builder.attribute('damage', weapon.damage);
               builder.attribute('burden', weapon.burden.displayName);
               builder.attribute('feature', weapon.feature);
-              builder.attribute('type', weapon.type);
+              builder.attribute('type', weapon.type.displayName);
               builder.attribute('tier', weapon.tier.toString());
             });
           }
@@ -934,7 +970,7 @@ class Character {
     }
 
     // Check primary weapon is still a primary weapon
-    if (primary?.type == 'secondary') {
+    if (primary?.type == WeaponType.secondary) {
       primaryWeapon = null;
     }
 
@@ -958,16 +994,16 @@ class Character {
     }
 
     // Check secondary weapon is still a secondary weapon
-    if (secondary?.type == 'primary') {
+    if (secondary?.type == WeaponType.primary) {
       secondaryWeapon = null;
     }
 
     // If character class has no spellcast trait, clear magic weapons
     if (subclass?.spellcastTrait == null) {
-      if (primary?.damageType == 'magic') {
+      if (primary?.damageType == DamageType.magic) {
         primaryWeapon = null;
       }
-      if (secondary?.damageType == 'magic') {
+      if (secondary?.damageType == DamageType.magic) {
         secondaryWeapon = null;
       }
     }
@@ -976,6 +1012,40 @@ class Character {
     if (secondary != null && secondary.tier > tier) {
       secondaryWeapon = null;
     }
+  }
+
+  List<Weapon> filterAvailableWeapons(GameDataService gameDataService,
+      [WeaponSlotFilter slotFilter = WeaponSlotFilter.all]) {
+    List<Weapon> availableWeapons;
+
+    availableWeapons = [
+      ...gameDataService.weapons.where((w) => w.tier <= tier),
+      ...customWeapons.where((w) => w.tier <= tier)
+    ];
+
+    // Filter by weapon type based on slot filter
+    switch (slotFilter) {
+      case WeaponSlotFilter.primaryOnly:
+        availableWeapons = availableWeapons
+            .where((w) => w.type == WeaponType.primary)
+            .toList();
+      case WeaponSlotFilter.secondaryOnly:
+        availableWeapons = availableWeapons
+            .where((w) => w.type == WeaponType.secondary)
+            .toList();
+      case WeaponSlotFilter.all:
+        // No filtering by type
+        break;
+    }
+
+    // Include magic weapons only if character has spellcast trait
+    if (subclass?.spellcastTrait == null) {
+      availableWeapons = [
+        ...availableWeapons.where((w) => w.damageType == DamageType.physical)
+      ];
+    }
+
+    return availableWeapons;
   }
 
   /// Check equipped custom armor is still valid, unequip if not
@@ -994,9 +1064,6 @@ class Character {
       equippedArmor = null;
     }
 
-    // Update max armor based on equipped armor
-    // TODO: calculate based on other factors too?
-    maxArmor = armor.baseScore;
     // Ensure current armor doesn't exceed max
     if (currentArmor > maxArmor) {
       currentArmor = maxArmor;

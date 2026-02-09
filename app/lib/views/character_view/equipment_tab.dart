@@ -54,6 +54,9 @@ class EquipmentTab extends StatelessWidget {
             _buildActiveArmorSection(
                 context, character, editMode, characterViewModel),
             const SizedBox(height: 8),
+            _buildInventoryWeaponSection(
+                context, character, editMode, characterViewModel),
+            const SizedBox(height: 8),
             _buildGoldSection(context, character, editMode, characterViewModel),
             const SizedBox(height: 8),
             _buildInventorySection(
@@ -161,26 +164,17 @@ class EquipmentTab extends StatelessWidget {
             // Primary Weapon
             _buildWeaponCard(
               context,
-              'Primary Weapon',
-              character.primaryWeapon,
-              editMode,
-              (weapon) => characterViewModel.updatePrimaryWeapon(weapon),
-              true, // isPrimary
-              characterViewModel,
+              title: 'Primary Weapon',
+              weapon: character.primaryWeapon,
+              canEdit: editMode,
+              onChanged: (weapon) =>
+                  characterViewModel.updatePrimaryWeapon(weapon),
+              slotFilter: WeaponSlotFilter.primaryOnly,
+              characterViewModel: characterViewModel,
             ),
             const SizedBox(height: 12),
 
             // Secondary Weapon
-            _buildWeaponCard(
-              context,
-              'Secondary Weapon',
-              character.secondaryWeapon,
-              editMode &&
-                  character.primaryWeapon?.burden != WeaponBurden.twoHanded,
-              (weapon) => characterViewModel.updateSecondaryWeapon(weapon),
-              false, // isPrimary
-              characterViewModel,
-            ),
 
             // Show constraint message for two-handed weapons
             // TODO: allow override
@@ -207,6 +201,18 @@ class EquipmentTab extends StatelessWidget {
                     ),
                   ],
                 ),
+              )
+            else
+              _buildWeaponCard(
+                context,
+                title: 'Secondary Weapon',
+                weapon: character.secondaryWeapon,
+                canEdit: editMode &&
+                    character.primaryWeapon?.burden != WeaponBurden.twoHanded,
+                onChanged: (weapon) =>
+                    characterViewModel.updateSecondaryWeapon(weapon),
+                slotFilter: WeaponSlotFilter.secondaryOnly,
+                characterViewModel: characterViewModel,
               ),
           ],
         ),
@@ -329,6 +335,74 @@ class EquipmentTab extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInventoryWeaponSection(BuildContext context, Character character,
+      bool editMode, CharacterViewModel characterViewModel) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+            'Inventory Weapons',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: HeartcraftTheme.gold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          if (character.inventoryWeapons.isEmpty) ...[
+            Text('No unequipped weapons in inventory',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[400],
+                      fontStyle: FontStyle.italic,
+                    ))
+          ],
+          if (editMode || character.inventoryWeapons.isNotEmpty) ...[
+            // Show current inventory weapons
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: character.inventoryWeapons.length,
+              itemBuilder: (context, index) {
+                final weapon = character.inventoryWeapons[index];
+                final canSwap =
+                    characterViewModel.canSwapInventoryWeaponWithActive(index);
+                return _buildWeaponCard(
+                  context,
+                  title: "Inventory Weapon #${index + 1}",
+                  weapon: weapon,
+                  canEdit: editMode,
+                  onChanged: (weapon) {
+                    characterViewModel.updateInventoryWeapon(index, weapon);
+                  },
+                  slotFilter: WeaponSlotFilter.all,
+                  characterViewModel: characterViewModel,
+                  showSwapButton: true,
+                  canSwap: canSwap,
+                  onSwap: () {
+                    characterViewModel.swapInventoryWeaponWithActive(index);
+                  },
+                );
+              },
+            ),
+            // Show dropdown to add new inventory weapon, if appropes
+            if (editMode && character.inventoryWeapons.length < 2) ...[
+              const SizedBox(height: 12),
+              _buildWeaponDropdown(
+                context,
+                slotFilter: WeaponSlotFilter.all,
+                onChanged: (weapon) {
+                  if (weapon != null) {
+                    characterViewModel.addInventoryWeapon(weapon);
+                  }
+                },
+                characterViewModel: characterViewModel,
+              ),
+            ]
+          ]
+        ]),
       ),
     );
   }
@@ -702,14 +776,17 @@ class EquipmentTab extends StatelessWidget {
 
   /// Build a weapon card for either display or edit mode
   Widget _buildWeaponCard(
-    BuildContext context,
-    String title,
-    Weapon? weapon,
-    bool canEdit,
-    Function(Weapon?) onChanged,
-    bool isPrimary,
-    CharacterViewModel characterViewModel,
-  ) {
+    BuildContext context, {
+    required String title,
+    required Weapon? weapon,
+    required bool canEdit,
+    required Function(Weapon?) onChanged,
+    required CharacterViewModel characterViewModel,
+    required WeaponSlotFilter slotFilter,
+    bool showSwapButton = false,
+    bool canSwap = false,
+    VoidCallback? onSwap,
+  }) {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
@@ -720,130 +797,132 @@ class EquipmentTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: HeartcraftTheme.gold,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ],
+          _buildWeaponCardHeader(
+            context,
+            title,
+            showSwapButton: showSwapButton,
+            canSwap: canSwap,
+            onSwap: onSwap,
           ),
           const SizedBox(height: 8),
-          if (canEdit) ...[
-            // Edit mode - only show dropdown
+          if (canEdit)
             _buildWeaponDropdown(
-                context, isPrimary, onChanged, characterViewModel, weapon),
-          ] else ...[
-            // Display mode - show weapon details or empty state
-            if (weapon == null) ...[
-              Text(
-                'No weapon equipped',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[400],
-                      fontStyle: FontStyle.italic,
-                    ),
-              ),
-            ] else ...[
-              // Weapon equipped - show details
-              Text(
-                weapon.name,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: weapon.custom
-                          ? HeartcraftTheme.lightPurple
-                          : HeartcraftTheme.primaryTextColor,
-                    ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Trait & range: ${weapon.trait} ${weapon.range}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[300],
-                    ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Damage dice & type: ${weapon.damage}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[300],
-                    ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Burden: ${weapon.burden.displayName}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[300],
-                    ),
-              ),
-              if (weapon.feature.isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(
-                  weapon.feature,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[400],
-                        fontStyle: FontStyle.italic,
-                      ),
-                ),
-              ],
-            ],
-          ],
+              context,
+              slotFilter: slotFilter,
+              onChanged: onChanged,
+              characterViewModel: characterViewModel,
+              currentWeapon: weapon,
+            )
+          else
+            _buildWeaponDetails(context, weapon),
         ],
       ),
     );
   }
 
+  /// Build weapon card header with title and optional swap button
+  Widget _buildWeaponCardHeader(
+    BuildContext context,
+    String title, {
+    required bool showSwapButton,
+    required bool canSwap,
+    VoidCallback? onSwap,
+  }) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: HeartcraftTheme.gold,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        if (showSwapButton) ...[
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: canSwap ? onSwap : null,
+            child: const Icon(Icons.swap_vert),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Build weapon details display for non-edit mode
+  Widget _buildWeaponDetails(BuildContext context, Weapon? weapon) {
+    if (weapon == null) {
+      return Text(
+        'No weapon equipped',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[400],
+              fontStyle: FontStyle.italic,
+            ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          weapon.name,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: weapon.custom
+                    ? HeartcraftTheme.lightPurple
+                    : HeartcraftTheme.primaryTextColor,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Trait & range: ${weapon.trait} ${weapon.range}',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[300],
+              ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Damage dice & type: ${weapon.damage}',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[300],
+              ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Burden: ${weapon.burden.displayName}',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[300],
+              ),
+        ),
+        if (weapon.feature.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            weapon.feature,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[400],
+                  fontStyle: FontStyle.italic,
+                ),
+          ),
+        ],
+      ],
+    );
+  }
+
   /// Build weapon dropdown for edit mode
-  Widget _buildWeaponDropdown(BuildContext context, bool isPrimary,
-      Function(Weapon?) onChanged, CharacterViewModel characterViewModel,
-      [Weapon? currentWeapon]) {
+  Widget _buildWeaponDropdown(
+    BuildContext context, {
+    required WeaponSlotFilter slotFilter,
+    required Function(Weapon?) onChanged,
+    required CharacterViewModel characterViewModel,
+    Weapon? currentWeapon,
+  }) {
     final gameDataService = context.read<GameDataService>();
     final character = characterViewModel.currentCharacter!;
 
-    List<Weapon> availableWeapons;
-    List<Weapon> physicalWeapons;
-    List<Weapon> customWeapons;
-    List<Weapon> magicWeapons;
-    if (isPrimary) {
-      physicalWeapons = gameDataService.primaryWeapons
-          .where((w) => w.damageType == 'physical')
-          .toList();
-      magicWeapons = gameDataService.primaryWeapons
-          .where((w) => w.damageType == 'magic')
-          .toList();
-      customWeapons =
-          character.customWeapons.where((w) => w.type == 'primary').toList();
-    } else {
-      physicalWeapons = gameDataService.secondaryWeapons
-          .where((w) => w.damageType == 'physical')
-          .toList();
-      magicWeapons = gameDataService.secondaryWeapons
-          .where((w) => w.damageType == 'magic')
-          .toList();
-      customWeapons =
-          character.customWeapons.where((w) => w.type == 'secondary').toList();
-    }
-
-    // Include magic weapons only if character has spellcast trait
-    if (character.subclass?.spellcastTrait != null) {
-      availableWeapons = [
-        ...physicalWeapons,
-        ...magicWeapons,
-        ...customWeapons
-      ];
-    } else {
-      availableWeapons = [
-        ...physicalWeapons,
-        ...customWeapons.where((w) => w.damageType == 'physical')
-      ];
-    }
-
     return WeaponDropdown(
-      weapons: availableWeapons,
+      weapons: character.filterAvailableWeapons(gameDataService, slotFilter),
       selectedWeapon: currentWeapon,
       maxTier: character.tier,
+      slotFilter: slotFilter,
       onChanged: onChanged,
     );
   }

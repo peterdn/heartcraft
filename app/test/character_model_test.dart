@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heartcraft/models/character.dart';
 import 'package:heartcraft/models/class.dart';
+import 'package:heartcraft/models/equipment.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:heartcraft/models/advancements.dart';
 import 'package:heartcraft/models/gold.dart';
@@ -26,9 +27,10 @@ import 'package:uuid/uuid.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Character XML ser/deser', () {
+  group('Character model tests', () {
     late GameDataService gameDataService;
     late String testCompendiumXml;
+    late Character originalCharacter;
 
     setUpAll(() async {
       // Load demo compendium XML from assets
@@ -37,11 +39,9 @@ void main() {
 
       gameDataService = GameDataService();
       gameDataService.loadFromXmlStrings([testCompendiumXml]);
-    });
 
-    test('ser/deser round-trip: load(save(character)) == character', () {
-      // 1. Create test character
-      final originalCharacter = Character(
+      // Create test character
+      originalCharacter = Character(
         id: Uuid().v4().toString(),
         name: 'Cecil Pebblepot',
         pronouns: 'he/him',
@@ -102,6 +102,7 @@ void main() {
         inventory: [],
         primaryWeapon: gameDataService.primaryWeapons.firstWhere(
             (w) => w.id == 'app.heartcraft.homebrew.demo.broadsword'),
+        inventoryWeapons: [],
         equippedArmor: gameDataService.armor.firstWhere(
             (a) => a.id == 'app.heartcraft.homebrew.demo.padded_armor'),
         notes: 'Test character for serialization',
@@ -109,15 +110,17 @@ void main() {
         customWeapons: [],
         customArmor: [],
       );
+    });
 
-      // 2. Serialise to XML
+    test('ser/deser round-trip: load(save(character)) == character', () {
+      // 1. Serialise to XML
       final xmlString = originalCharacter.toXml();
       expect(xmlString, isNotEmpty);
 
-      // 3. Deserialise from XML
+      // 2. Deserialise from XML
       final loadedCharacter = Character.fromXml(xmlString, gameDataService);
 
-      // 4. Verify equality
+      // 3. Verify equality
       expect(loadedCharacter.id, equals(originalCharacter.id));
       expect(loadedCharacter.name, equals(originalCharacter.name));
       expect(loadedCharacter.pronouns, equals(originalCharacter.pronouns));
@@ -228,6 +231,82 @@ void main() {
 
       // Notes
       expect(loadedCharacter.notes, equals(originalCharacter.notes));
+    });
+
+    test('filterAvailableWeapons primary tier 1', () {
+      final availablePrimaryWeapons = originalCharacter.filterAvailableWeapons(
+          gameDataService, WeaponSlotFilter.primaryOnly);
+
+      // Should return all tier 1 primary weapons
+      expect(
+          availablePrimaryWeapons
+              .every((w) => w.type == WeaponType.primary && w.tier == 1),
+          isTrue);
+
+      // Should include magic and physical
+      expect(
+          availablePrimaryWeapons
+              .any((w) => w.damageType == DamageType.physical),
+          isTrue);
+      expect(
+          availablePrimaryWeapons.any((w) => w.damageType == DamageType.magic),
+          isTrue);
+    });
+
+    test('filterAvailableWeapons secondary tier 1', () {
+      final availableSecondaryWeapons =
+          originalCharacter.filterAvailableWeapons(
+              gameDataService, WeaponSlotFilter.secondaryOnly);
+
+      // Should return all tier 1 secondary weapons
+      expect(
+          availableSecondaryWeapons
+              .every((w) => w.type == WeaponType.secondary && w.tier == 1),
+          isTrue);
+    });
+
+    test('filterAvailableWeapons primary physical tier 1', () {
+      originalCharacter.subclass = null; // Remove spellcast trait
+
+      final availablePrimaryWeapons = originalCharacter.filterAvailableWeapons(
+          gameDataService, WeaponSlotFilter.primaryOnly);
+
+      // Should return only tier 1 primary weapons
+      expect(
+          availablePrimaryWeapons
+              .every((w) => w.type == WeaponType.primary && w.tier == 1),
+          isTrue);
+
+      // Should not include magic weapons
+      expect(
+          availablePrimaryWeapons
+              .every((w) => w.damageType != DamageType.magic),
+          isTrue);
+    });
+
+    test('filterAvailableWeapons primary tier 2', () {
+      originalCharacter.level = 2; // level 2 => tier 2
+
+      final availablePrimaryWeapons = originalCharacter.filterAvailableWeapons(
+          gameDataService, WeaponSlotFilter.primaryOnly);
+
+      // Should return tier 1 and tier 2 primary weapons
+      expect(
+          availablePrimaryWeapons
+              .every((w) => w.type == WeaponType.primary && w.tier <= 2),
+          isTrue);
+      expect(availablePrimaryWeapons.any((w) => w.tier == 2), isTrue);
+    });
+
+    test('filterAvailableWeapons all tier 1', () {
+      final availablePrimaryWeapons =
+          originalCharacter.filterAvailableWeapons(gameDataService);
+
+      // Should return both primary and secondary tier 1 weapons
+      expect(availablePrimaryWeapons.any((w) => w.type == WeaponType.primary),
+          isTrue);
+      expect(availablePrimaryWeapons.any((w) => w.type == WeaponType.secondary),
+          isTrue);
     });
   });
 }

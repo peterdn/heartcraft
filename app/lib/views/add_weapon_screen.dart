@@ -34,8 +34,8 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
   String feature = '';
   String damageModifier = '0';
   WeaponBurden? selectedBurden;
-  String? selectedDamageType;
-  String? selectedWeaponType;
+  DamageType? selectedDamageType;
+  WeaponType? selectedWeaponType;
   int? selectedTier;
   Trait? selectedTrait;
   Range? selectedRange;
@@ -52,8 +52,7 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
       name = weapon.name;
       feature = weapon.feature;
       selectedBurden = weapon.burden;
-      selectedDamageType =
-          weapon.damage.contains(' mag') ? 'magic' : 'physical';
+      selectedDamageType = weapon.damageType;
       selectedWeaponType = weapon.type;
       selectedTier = weapon.tier;
       selectedTrait = Trait.values.firstWhere(
@@ -89,7 +88,7 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
       final damageString = (modifier > 0
               ? '${selectedDie!.displayName}+$modifier'
               : selectedDie!.displayName) +
-          (selectedDamageType == 'magic'
+          (selectedDamageType == DamageType.magic
               ? ' mag'
               : ' phy'); // TODO: handle damage as its own type
 
@@ -178,13 +177,12 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      _buildDropdown<String>(
+                      _buildDropdown<WeaponType>(
                         label: 'Type',
                         value: selectedWeaponType,
                         hint: 'Select Type',
-                        items: ['primary', 'secondary'],
-                        itemLabel: (type) =>
-                            type[0].toUpperCase() + type.substring(1),
+                        items: WeaponType.values,
+                        itemLabel: (type) => type.displayName,
                         onChanged: (value) {
                           setState(() {
                             selectedWeaponType = value;
@@ -287,13 +285,12 @@ class AddWeaponScreenState extends State<AddWeaponScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildDropdown<String>(
+                      _buildDropdown<DamageType>(
                         label: 'Damage Type',
                         value: selectedDamageType,
                         hint: 'Select Damage Type',
-                        items: ['physical', 'magic'],
-                        itemLabel: (type) =>
-                            type[0].toUpperCase() + type.substring(1),
+                        items: DamageType.values,
+                        itemLabel: (type) => type.displayName,
                         onChanged: (value) {
                           setState(() {
                             selectedDamageType = value;

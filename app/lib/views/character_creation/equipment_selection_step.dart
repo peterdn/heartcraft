@@ -59,15 +59,18 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
     gameDataService = context.read<GameDataService>();
 
     final primaryWeapons = gameDataService.primaryWeapons;
-    primaryPhysicalWeapons =
-        primaryWeapons.where((w) => w.damageType == 'physical').toList();
+    primaryPhysicalWeapons = primaryWeapons
+        .where((w) => w.damageType == DamageType.physical)
+        .toList();
     primaryMagicWeapons =
-        primaryWeapons.where((w) => w.damageType == 'magic').toList();
+        primaryWeapons.where((w) => w.damageType == DamageType.magic).toList();
     secondaryWeapons = gameDataService.secondaryWeapons;
-    secondaryPhysicalWeapons =
-        secondaryWeapons.where((w) => w.damageType == 'physical').toList();
-    secondaryMagicWeapons =
-        secondaryWeapons.where((w) => w.damageType == 'magic').toList();
+    secondaryPhysicalWeapons = secondaryWeapons
+        .where((w) => w.damageType == DamageType.physical)
+        .toList();
+    secondaryMagicWeapons = secondaryWeapons
+        .where((w) => w.damageType == DamageType.magic)
+        .toList();
     armorList = gameDataService.armor;
     automaticItems = gameDataService.startingItems;
     startingGold = gameDataService.startingGold;
@@ -136,6 +139,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   _buildWeaponSection(
                     _getAvailablePrimaryWeapons(),
                     viewModel.character.primaryWeapon,
+                    WeaponSlotFilter.primaryOnly,
                     (weapon) => viewModel.selectPrimaryWeapon(weapon),
                   ),
 
@@ -157,6 +161,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                     _buildWeaponSection(
                       _getAvailableSecondaryWeapons(),
                       viewModel.character.secondaryWeapon,
+                      WeaponSlotFilter.secondaryOnly,
                       (weapon) => viewModel.selectSecondaryWeapon(weapon),
                     ),
 
@@ -253,13 +258,17 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   Widget _buildWeaponSection(
     List<Weapon> weapons,
     Weapon? selected,
+    WeaponSlotFilter slotFilter,
     Function(Weapon?) onChanged,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildWeaponDropdown(
-            weapons, weapons.contains(selected) ? selected : null, onChanged),
+            weapons,
+            weapons.contains(selected) ? selected : null,
+            slotFilter,
+            onChanged),
       ],
     );
   }
@@ -267,6 +276,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
   Widget _buildWeaponDropdown(
     List<Weapon> weapons,
     Weapon? selected,
+    WeaponSlotFilter slotFilter,
     Function(Weapon?) onChanged, {
     bool isDisabled = false,
   }) {
@@ -274,6 +284,7 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
       weapons: weapons,
       selectedWeapon: selected,
       maxTier: 1,
+      slotFilter: slotFilter,
       onChanged: onChanged,
       isDisabled: isDisabled,
     );

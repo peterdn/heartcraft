@@ -37,8 +37,7 @@ class Compendium {
   final List<Ancestry> ancestries = [];
   final List<Community> communities = [];
   final List<Domain> domains = [];
-  final List<Weapon> primaryWeapons = [];
-  final List<Weapon> secondaryWeapons = [];
+  final List<Weapon> weapons = [];
   final List<Armor> armor = [];
   final Map<String, List<String>> classItems = {};
   final List<String> startingItems = [];
@@ -70,8 +69,7 @@ class Compendium {
     ancestries.addAll(compendium.ancestries);
     communities.addAll(compendium.communities);
     domains.addAll(compendium.domains);
-    primaryWeapons.addAll(compendium.primaryWeapons);
-    secondaryWeapons.addAll(compendium.secondaryWeapons);
+    weapons.addAll(compendium.weapons);
     armor.addAll(compendium.armor);
     experiences.addAll(compendium.experiences);
     domainAbilities.addAll(compendium.domainAbilities);

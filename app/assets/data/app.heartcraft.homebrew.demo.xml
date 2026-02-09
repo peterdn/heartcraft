@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<compendium schemaVersion="0.1" id="app.heartcraft.homebrew.demo" version="4" name="Heartcraft Homebrew Demo" description="A compendium to demo homebrew content." author="Peter Nelson" url="https://heartcraft.app" license="CC BY-SA 4.0" licenseUrl="https://creativecommons.org/licenses/by-sa/4.0/">
+<compendium schemaVersion="0.1" id="app.heartcraft.homebrew.demo" version="5" name="Heartcraft Homebrew Demo" description="A compendium to demo homebrew content." author="Peter Nelson" url="https://heartcraft.app" license="CC BY-SA 4.0" licenseUrl="https://creativecommons.org/licenses/by-sa/4.0/">
   <domains>
     <domain id="shadow" name="Shadow">
       <description>Domain of shadow that weaves darkness into weapons, instills fear in the hearts of enemies, and embraces the power of the void.</description>
@@ -515,6 +515,18 @@
       <secondary tier="1">
         <weapon id="buckler" name="Buckler" trait="Agility" range="Melee" damage="d4 phy" burden="One-Handed" feature="Protective: +1 to Armor Score"/>
         <weapon id="small_dagger" name="Small Dagger" trait="Finesse" range="Melee" damage="d8 phy" burden="One-Handed" feature="Paired: +2 to primary weapon damage to targets within Melee range"/>
+      </secondary>
+      <primary type="physical" tier="2">
+        <weapon id="improved_broadsword" name="Improved Broadsword" trait="Strength" range="Melee" damage="d8+3 phy" burden="One-Handed" feature=""/>
+        <weapon id="improved_greataxe" name="Improved Greataxe" trait="Strength" range="Melee" damage="d10+6 phy" burden="Two-Handed" feature=""/>
+        <weapon id="improved_shortbow" name="Improved Shortbow" trait="Agility" range="Far" damage="d6+6 phy" burden="Two-Handed" feature=""/>
+      </primary>
+      <primary type="magic" tier="2">
+        <weapon id="improved_wand" name="Improved Wand" trait="Knowledge" range="Far" damage="d6+4 mag" burden="One-Handed" feature=""/>
+      </primary>
+      <secondary tier="2">
+        <weapon id="improved_buckler" name="Improved Buckler" trait="Agility" range="Melee" damage="d4+3 phy" burden="One-Handed" feature="Protective: +1 to Armor Score"/>
+        <weapon id="improved_small_dagger" name="Improved Small Dagger" trait="Finesse" range="Melee" damage="d8+3 phy" burden="One-Handed" feature="Paired: +2 to primary weapon damage to targets within Melee range"/>
       </secondary>
     </weapons>
 

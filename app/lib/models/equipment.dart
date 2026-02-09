@@ -49,6 +49,13 @@ enum WeaponBurden {
   }
 }
 
+/// Filter for which weapons to show in weapon selection
+enum WeaponSlotFilter {
+  all,
+  primaryOnly,
+  secondaryOnly,
+}
+
 enum Range {
   melee,
   veryClose,
@@ -138,6 +145,60 @@ enum DamageDie {
   }
 }
 
+enum DamageType {
+  physical,
+  magic;
+
+  String get displayName {
+    switch (this) {
+      case DamageType.physical:
+        return 'Physical';
+      case DamageType.magic:
+        return 'Magic';
+    }
+  }
+
+  /// Parse damage type from XML attribute value
+  static DamageType fromString(String value) {
+    final normalized = value.toLowerCase().trim();
+    switch (normalized) {
+      case 'physical':
+        return DamageType.physical;
+      case 'magic':
+        return DamageType.magic;
+      default:
+        throw FormatException('Unknown damage type value: $value');
+    }
+  }
+}
+
+enum WeaponType {
+  primary,
+  secondary;
+
+  String get displayName {
+    switch (this) {
+      case WeaponType.primary:
+        return 'Primary';
+      case WeaponType.secondary:
+        return 'Secondary';
+    }
+  }
+
+  /// Parse weapon type from XML attribute value
+  static WeaponType fromString(String value) {
+    final normalized = value.toLowerCase().trim();
+    switch (normalized) {
+      case 'primary':
+        return WeaponType.primary;
+      case 'secondary':
+        return WeaponType.secondary;
+      default:
+        throw FormatException('Unknown weapon type value: $value');
+    }
+  }
+}
+
 class Weapon {
   // TODO: make some of this stuff enums or classes
   final String id;
@@ -147,8 +208,8 @@ class Weapon {
   final String damage;
   final WeaponBurden burden;
   final String feature;
-  final String damageType;
-  final String type;
+  final DamageType damageType;
+  final WeaponType type;
   final int tier;
   bool custom;
 
@@ -167,7 +228,7 @@ class Weapon {
   });
 
   factory Weapon.fromXml(
-      XmlElement element, String damageType, String type, int tier,
+      XmlElement element, DamageType damageType, WeaponType type, int tier,
       [Compendium? compendium]) {
     final burdenStr = element.getAttribute('burden') ?? 'unknown';
     return Weapon(

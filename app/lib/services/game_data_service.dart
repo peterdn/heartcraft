@@ -608,28 +608,30 @@ class GameDataService {
   /// Load all weapons from XML
   void loadWeapons(XmlElement equipmentElement, Compendium? compendium) {
     if (compendium == null) return;
-    if (compendium.primaryWeapons.isNotEmpty) return;
+    if (compendium.weapons.isNotEmpty) return;
 
     try {
       final weaponsElement = equipmentElement.getElement("weapons");
 
       // Load primary weapons (physical and magic)
       for (final primary in weaponsElement!.findAllElements('primary')) {
-        final damageType = primary.getAttribute('type') ?? 'physical';
+        final damageType =
+            DamageType.fromString(primary.getAttribute('type') ?? 'physical');
         final tier = int.tryParse(primary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in primary.findElements('weapon')) {
-          compendium.primaryWeapons.add(
-              Weapon.fromXml(weapon, damageType, 'primary', tier, compendium));
+          compendium.weapons.add(Weapon.fromXml(
+              weapon, damageType, WeaponType.primary, tier, compendium));
         }
       }
 
       // Load secondary weapons
       for (final secondary in weaponsElement.findAllElements('secondary')) {
-        final damageType = secondary.getAttribute('type') ?? 'physical';
+        final damageType =
+            DamageType.fromString(secondary.getAttribute('type') ?? 'physical');
         final tier = int.tryParse(secondary.getAttribute('tier') ?? '1') ?? 1;
         for (final weapon in secondary.findElements('weapon')) {
-          compendium.secondaryWeapons.add(Weapon.fromXml(
-              weapon, damageType, 'secondary', tier, compendium));
+          compendium.weapons.add(Weapon.fromXml(
+              weapon, damageType, WeaponType.secondary, tier, compendium));
         }
       }
     } catch (e) {
@@ -777,9 +779,17 @@ class GameDataService {
   List<Domain> get domains => _mergedCompendium?.domains ?? [];
   List<DomainAbility> get domainAbilities =>
       _mergedCompendium?.domainAbilities ?? [];
-  List<Weapon> get primaryWeapons => _mergedCompendium?.primaryWeapons ?? [];
+  List<Weapon> get weapons => _mergedCompendium?.weapons ?? [];
+  List<Weapon> get primaryWeapons =>
+      _mergedCompendium?.weapons
+          .where((w) => w.type == WeaponType.primary)
+          .toList() ??
+      [];
   List<Weapon> get secondaryWeapons =>
-      _mergedCompendium?.secondaryWeapons ?? [];
+      _mergedCompendium?.weapons
+          .where((w) => w.type == WeaponType.secondary)
+          .toList() ??
+      [];
   List<Armor> get armor => _mergedCompendium?.armor ?? [];
   Map<String, List<SubClass>> get subclasses =>
       _mergedCompendium?.subclasses ?? {};
