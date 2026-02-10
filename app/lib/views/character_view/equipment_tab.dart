@@ -352,7 +352,7 @@ class EquipmentTab extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 8),
-          if (character.inventoryWeapons.isEmpty) ...[
+          if (!editMode && character.inventoryWeapons.isEmpty) ...[
             Align(
               alignment: Alignment.centerLeft,
               child: Text('No unequipped weapons in inventory',
