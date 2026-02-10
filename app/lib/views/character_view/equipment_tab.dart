@@ -353,11 +353,14 @@ class EquipmentTab extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (character.inventoryWeapons.isEmpty) ...[
-            Text('No unequipped weapons in inventory',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[400],
-                      fontStyle: FontStyle.italic,
-                    ))
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('No unequipped weapons in inventory',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[400],
+                        fontStyle: FontStyle.italic,
+                      )),
+            )
           ],
           if (editMode || character.inventoryWeapons.isNotEmpty) ...[
             // Show current inventory weapons
