@@ -177,8 +177,7 @@ class EquipmentTab extends StatelessWidget {
             // Secondary Weapon
 
             // Show constraint message for two-handed weapons
-            // TODO: allow override
-            if (character.primaryWeapon?.burden == WeaponBurden.twoHanded)
+            if (character.burdenedByTwoHandedWeapon)
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(top: 8),
@@ -207,8 +206,7 @@ class EquipmentTab extends StatelessWidget {
                 context,
                 title: 'Secondary Weapon',
                 weapon: character.secondaryWeapon,
-                canEdit: editMode &&
-                    character.primaryWeapon?.burden != WeaponBurden.twoHanded,
+                canEdit: editMode && !character.burdenedByTwoHandedWeapon,
                 onChanged: (weapon) =>
                     characterViewModel.updateSecondaryWeapon(weapon),
                 slotFilter: WeaponSlotFilter.secondaryOnly,
@@ -371,7 +369,7 @@ class EquipmentTab extends StatelessWidget {
               itemBuilder: (context, index) {
                 final weapon = character.inventoryWeapons[index];
                 final canSwap =
-                    characterViewModel.canSwapInventoryWeaponWithActive(index);
+                    character.canSwapInventoryWeaponWithActive(index);
                 return _buildWeaponCard(
                   context,
                   title: "Inventory Weapon #${index + 1}",

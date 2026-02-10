@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<compendium schemaVersion="0.1" id="app.heartcraft.homebrew.demo" version="5" name="Heartcraft Homebrew Demo" description="A compendium to demo homebrew content." author="Peter Nelson" url="https://heartcraft.app" license="CC BY-SA 4.0" licenseUrl="https://creativecommons.org/licenses/by-sa/4.0/">
+<compendium schemaVersion="0.1" id="app.heartcraft.homebrew.demo" version="6" name="Heartcraft Homebrew Demo" description="A compendium to demo homebrew content." author="Peter Nelson" url="https://heartcraft.app" license="CC BY-SA 4.0" licenseUrl="https://creativecommons.org/licenses/by-sa/4.0/">
   <domains>
     <domain id="shadow" name="Shadow">
       <description>Domain of shadow that weaves darkness into weapons, instills fear in the hearts of enemies, and embraces the power of the void.</description>
@@ -347,6 +347,9 @@
             <feature id="shock_tactics">
               <name>Shock Tactics</name>
               <description>You excel at seizing the initiative. On your first action in any combat scene, or an action that would plausibly initiate a combat scene, you have Advantage on all Action Rolls. Additionally, you deal an additional d6 damage, using your Proficiency, against enemies who have not yet acted in the scene.</description>
+              <ruleOverrides>
+                <ignoreWeaponBurden>true</ignoreWeaponBurden>
+              </ruleOverrides>
             </feature>
           </foundationFeatures>
         </subclass>

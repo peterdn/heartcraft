@@ -399,6 +399,9 @@ class CharacterCreationViewModel extends ChangeNotifier {
     // Clear background answers when class changes
     _character.backgroundQuestionnaireAnswers.clear();
 
+    // Re-evaluate rules overrides based on new class
+    _character.resetRuleOverrides();
+
     _stepCompleted[CharacterCreationStep.classAndSubclass] = true;
     _updateState();
   }
@@ -475,7 +478,7 @@ class CharacterCreationViewModel extends ChangeNotifier {
     _character.primaryWeapon = weapon;
 
     // If selecting a two-handed weapon, clear secondary
-    if (weapon?.burden == WeaponBurden.twoHanded) {
+    if (_character.burdenedByTwoHandedWeapon) {
       _character.secondaryWeapon = null;
     }
 

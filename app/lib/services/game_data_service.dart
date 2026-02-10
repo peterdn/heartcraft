@@ -21,6 +21,7 @@ import 'package:heartcraft/models/class.dart';
 import 'package:heartcraft/models/compendium.dart';
 import 'package:heartcraft/models/ancestry.dart';
 import 'package:heartcraft/models/community.dart';
+import 'package:heartcraft/models/rule_overrides.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:xml/xml.dart';
@@ -468,7 +469,18 @@ class GameDataService {
         final name = featureElement.getElement('name')?.innerText ?? '';
         final description =
             featureElement.getElement('description')?.innerText ?? '';
-        features.add(Feature(id: id, name: name, description: description));
+
+        // TODO: support rule overrides in other places
+        final ruleOverridesElement = featureElement.getElement('ruleOverrides');
+        RuleOverrides? ruleOverrides;
+        if (ruleOverridesElement != null) {
+          ruleOverrides = RuleOverrides.fromXml(ruleOverridesElement);
+        }
+        features.add(Feature(
+            id: id,
+            name: name,
+            description: description,
+            ruleOverrides: ruleOverrides));
       }
     }
     return features;

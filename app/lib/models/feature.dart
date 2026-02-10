@@ -13,15 +13,19 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+import 'package:heartcraft/models/rule_overrides.dart';
+
 /// Represents a community, ancestry, or class feature
 class Feature {
   String id;
   String name;
   String description;
+  RuleOverrides? ruleOverrides;
 
   Feature({
     required this.id,
     required this.name,
     required this.description,
+    this.ruleOverrides,
   });
 }

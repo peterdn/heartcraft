@@ -156,17 +156,14 @@ class EquipmentSelectionStepState extends State<EquipmentSelectionStep> {
                   const SizedBox(height: 12),
 
                   // Secondary weapon Selection (only if primary is one-handed)
-                  if (viewModel.character.primaryWeapon?.burden !=
-                      WeaponBurden.twoHanded)
+                  if (!viewModel.character.burdenedByTwoHandedWeapon)
                     _buildWeaponSection(
                       _getAvailableSecondaryWeapons(),
                       viewModel.character.secondaryWeapon,
                       WeaponSlotFilter.secondaryOnly,
                       (weapon) => viewModel.selectSecondaryWeapon(weapon),
-                    ),
-
-                  if (viewModel.character.primaryWeapon?.burden ==
-                      WeaponBurden.twoHanded)
+                    )
+                  else
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(

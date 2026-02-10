@@ -21,6 +21,7 @@ import 'package:heartcraft/models/equipment.dart';
 import 'package:heartcraft/models/advancements.dart';
 import 'package:heartcraft/models/ancestry.dart';
 import 'package:heartcraft/models/community.dart';
+import 'package:heartcraft/models/rule_overrides.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
@@ -90,6 +91,9 @@ class Character {
   // Custom armor defined for this character
   List<Armor> customArmor;
 
+  // Rules overrides for this character
+  RuleOverrides ruleOverrides = RuleOverrides();
+
   // TODO: tidy up this huge mess of nullables and requireds...
   Character({
     required this.id,
@@ -134,7 +138,10 @@ class Character {
     required this.gold,
     required this.customWeapons,
     required this.customArmor,
-  });
+  }) {
+    // Consolidate rules overrides from features
+    _consolidateRuleOverrides();
+  }
 
   static String _generateCharacterId() {
     return DateTime.now().millisecondsSinceEpoch.toString() +
@@ -948,6 +955,7 @@ class Character {
     return '$className $level';
   }
 
+  /// Get character tier based on level
   int get tier {
     return level == 1
         ? 1
@@ -956,6 +964,13 @@ class Character {
             : level <= 7
                 ? 3
                 : 4;
+  }
+
+  /// Check if character is burdened by a two-handed weapon
+  /// taking into account any rule overrides that ignore weapon burden
+  bool get burdenedByTwoHandedWeapon {
+    return !(ruleOverrides.ignoreWeaponBurden) &&
+        primaryWeapon?.burden == WeaponBurden.twoHanded;
   }
 
   /// Check equipped weapons are still valid, unequip if not
@@ -975,7 +990,7 @@ class Character {
     }
 
     // If primary weapon is two-handed, clear secondary weapon
-    if (primary?.burden == WeaponBurden.twoHanded) {
+    if (burdenedByTwoHandedWeapon) {
       secondaryWeapon = null;
     }
 
@@ -1011,6 +1026,76 @@ class Character {
     // If secondary weapon tier exceeds character tier, unequip
     if (secondary != null && secondary.tier > tier) {
       secondaryWeapon = null;
+    }
+  }
+
+  /// Returns true if the inventory weapon at the given index can
+  /// be swapped with a currently active weapon
+  bool canSwapInventoryWeaponWithActive(int index) {
+    if (index < 0 || index >= inventoryWeapons.length) {
+      return false;
+    }
+    final inventoryWeapon = inventoryWeapons[index];
+
+    // Can only swap a 2h weapon if there is space for secondary
+    // (and there is no rule override ignoring weapon burden)
+    if (ruleOverrides.ignoreWeaponBurden == false &&
+        inventoryWeapon.burden == WeaponBurden.twoHanded &&
+        secondaryWeapon != null &&
+        inventoryWeapons.length >= 2) {
+      return false;
+    }
+
+    // Can only swap in a secondary if primary is not 2h
+    if (inventoryWeapon.type == WeaponType.secondary) {
+      if (primaryWeapon != null && burdenedByTwoHandedWeapon) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Swap the inventory weapon at the given index with the currently equipped weapon
+  void swapInventoryWeaponWithActive(int index) {
+    if (!canSwapInventoryWeaponWithActive(index)) return;
+
+    final inventoryWeapon = inventoryWeapons[index];
+
+    if (inventoryWeapon.type == WeaponType.primary) {
+      if (ruleOverrides.ignoreWeaponBurden == false &&
+          inventoryWeapon.burden == WeaponBurden.twoHanded &&
+          secondaryWeapon != null &&
+          inventoryWeapons.length < 2) {
+        // If swapping in a 2h primary and there is only one
+        // inventory slot, move secondary to inventory
+        inventoryWeapons.add(secondaryWeapon!);
+        secondaryWeapon = null;
+      }
+      final temp = primaryWeapon;
+      primaryWeapon = inventoryWeapon;
+      _updateInventoryWeapon(index, temp);
+    } else {
+      final temp = secondaryWeapon;
+      secondaryWeapon = inventoryWeapon;
+      _updateInventoryWeapon(index, temp);
+    }
+
+    validateEquippedWeapons();
+  }
+
+  /// Update inventory weapon by index (0 or 1)
+  void _updateInventoryWeapon(int index, Weapon? weapon) {
+    if (weapon == null) {
+      if (index < inventoryWeapons.length) {
+        inventoryWeapons.removeAt(index);
+      }
+    } else {
+      if (index < inventoryWeapons.length) {
+        inventoryWeapons[index] = weapon;
+      } else if (inventoryWeapons.length < 2) {
+        inventoryWeapons.add(weapon);
+      }
     }
   }
 
@@ -1067,6 +1152,25 @@ class Character {
     // Ensure current armor doesn't exceed max
     if (currentArmor > maxArmor) {
       currentArmor = maxArmor;
+    }
+  }
+
+  /// Reset rules overrides to default and re-consolidate
+  void resetRuleOverrides() {
+    ruleOverrides = RuleOverrides();
+    _consolidateRuleOverrides();
+  }
+
+  /// Consolidate rules overrides from all features
+  void _consolidateRuleOverrides() {
+    for (Feature feature in [
+      ...selectedAncestryFeatures,
+      ...subclassFeatures,
+      ...characterClass?.classFeatures ?? [],
+    ]) {
+      if (feature.ruleOverrides != null) {
+        ruleOverrides.merge(feature.ruleOverrides!);
+      }
     }
   }
 }

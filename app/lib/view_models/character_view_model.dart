@@ -557,64 +557,11 @@ class CharacterViewModel extends ChangeNotifier {
     });
   }
 
-  /// Returns true if the inventory weapon at the given index can
-  /// be swapped with a currently active weapon
-  bool canSwapInventoryWeaponWithActive(int index) {
-    if (index < 0 || index >= _currentCharacter!.inventoryWeapons.length) {
-      return false;
-    }
-    final inventoryWeapon = _currentCharacter!.inventoryWeapons[index];
-    final secondary = _currentCharacter!.secondaryWeapon;
-
-    // Can only swap a 2h weapon with 1h if there is a free
-    // inventory slot to move the secondary weapon
-    if (inventoryWeapon.burden == WeaponBurden.twoHanded &&
-        secondary != null &&
-        _currentCharacter!.inventoryWeapons.length >= 2) {
-      return false;
-    }
-
-    // Can only swap in a secondary if currently equipped
-    // primary weapon is not 2h
-    if (inventoryWeapon.type == WeaponType.secondary) {
-      final primary = _currentCharacter!.primaryWeapon;
-      if (primary != null && primary.burden == WeaponBurden.twoHanded) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   /// Swap the inventory weapon at the given index with the currently equipped
-  /// weapon of the same type. Will also swap outan equipped secondary if
+  /// weapon of the same type. Will also swap out an equipped secondary if
   /// swapping in a 2h, if there is enough inventory space to hold it
   void swapInventoryWeaponWithActive(int index) {
-    if (!canSwapInventoryWeaponWithActive(index)) return;
-
-    _updateField(() {
-      final inventoryWeapon = _currentCharacter!.inventoryWeapons[index];
-
-      if (inventoryWeapon.type == WeaponType.primary) {
-        if (inventoryWeapon.burden == WeaponBurden.twoHanded &&
-            _currentCharacter!.secondaryWeapon != null &&
-            _currentCharacter!.inventoryWeapons.length < 2) {
-          // If swapping in a 2h primary and there is only one
-          // inventory slot, move secondary to inventory
-          addInventoryWeapon(_currentCharacter!.secondaryWeapon!);
-          _currentCharacter!.secondaryWeapon = null;
-        }
-        final temp = _currentCharacter!.primaryWeapon;
-        _currentCharacter!.primaryWeapon = inventoryWeapon;
-        updateInventoryWeapon(index, temp);
-      } else {
-        final temp = _currentCharacter!.secondaryWeapon;
-        _currentCharacter!.secondaryWeapon = inventoryWeapon;
-        updateInventoryWeapon(index, temp);
-      }
-
-      _currentCharacter!.validateEquippedWeapons();
-    });
+    _updateField(() => _currentCharacter!.swapInventoryWeaponWithActive(index));
   }
 
   /// Update equipped armor
