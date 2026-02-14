@@ -20,6 +20,7 @@ import 'package:heartcraft/models/experience.dart';
 import 'package:heartcraft/models/trait.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/character.dart';
+import '../models/domain.dart';
 import '../models/equipment.dart';
 import '../models/gold.dart';
 import '../services/character_data_service.dart';
@@ -629,5 +630,17 @@ class CharacterViewModel extends ChangeNotifier {
   void updateCompanionDamageDie(String damageDie) {
     _updateCompanionField(
         () => _currentCharacter!.companion!.damageDie = damageDie);
+  }
+
+  /// Update domain loadout
+  void updateDomainLoadout(List<DomainAbility> loadout) {
+    _updateField(() => _currentCharacter!.domainLoadout = loadout);
+  }
+
+  /// Update all available domain abilities
+  void updateDomainAbilities(List<DomainAbility> abilities) {
+    _updateField(() {
+      _currentCharacter!.setDomainAbilities(abilities, fillLoadout: false);
+    });
   }
 }

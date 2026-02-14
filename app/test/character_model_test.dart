@@ -99,6 +99,9 @@ void main() {
                 a.id == 'app.heartcraft.homebrew.demo.p1' ||
                 a.id == 'app.heartcraft.homebrew.demo.p2')
             .toList(),
+        domainLoadout: gameDataService.domainAbilities
+            .take(Character.maxDomainLoadoutSize)
+            .toList(),
         inventory: [],
         primaryWeapon: gameDataService.primaryWeapons.firstWhere(
             (w) => w.id == 'app.heartcraft.homebrew.demo.broadsword'),

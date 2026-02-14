@@ -134,8 +134,8 @@ class DomainCardsStep extends StatelessWidget {
   ) {
     // Get current selection from ViewModel
     final selectedAbilities = availableAbilities
-        .where((a) => viewModel.character.domainAbilities
-            .any((sel) => sel.name == a.name))
+        .where((a) =>
+            viewModel.character.domainLoadout.any((sel) => sel.name == a.name))
         .toList();
 
     final minCardWidth = 350.0;

@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import '../../view_models/character_view_model.dart';
 import '../../view_models/edit_mode_view_model.dart';
 import '../../services/game_data_service.dart';
+import '../domain_cards_screen.dart';
 
 /// Abilities tab for character view
 /// Shows traits, experiences, class/subclass/heritage features, and domain cards
@@ -86,8 +87,7 @@ class AbilitiesTabState extends State<AbilitiesTab> {
           _buildSubclassFeaturesCard(context, character),
           _buildAncestryFeaturesCard(context, character),
           _buildCommunityFeaturesCard(context, character),
-          if (character.domainAbilities.isNotEmpty)
-            _buildDomainCardsCard(context, character),
+          _buildDomainCardsCard(context, character, editMode),
         ],
       ),
     );
@@ -356,7 +356,8 @@ class AbilitiesTabState extends State<AbilitiesTab> {
     );
   }
 
-  Widget _buildDomainCardsCard(BuildContext context, Character character) {
+  Widget _buildDomainCardsCard(
+      BuildContext context, Character character, bool editMode) {
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: Padding(
@@ -364,33 +365,71 @@ class AbilitiesTabState extends State<AbilitiesTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Domain Card Loadout',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: HeartcraftTheme.gold,
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
+              children: [
+                Text(
+                  'Domain Card Loadout',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: HeartcraftTheme.gold,
+                      ),
+                ),
+                if (editMode) ...[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const DomainCardsScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.inventory_2),
+                      SizedBox(width: 8),
+                      Text('Vault')
+                    ]),
                   ),
+                ]
+              ],
             ),
-            const SizedBox(height: 16),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final availableWidth = constraints.maxWidth;
-                final crossAxisCount = availableWidth ~/ cardWidth;
-                return MasonryGridView.count(
-                  crossAxisCount: crossAxisCount > 0 ? crossAxisCount : 1,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  itemCount: character.domainAbilities.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) => DomainCard(
-                    ability: character.domainAbilities[index],
-                    domains: character.domains,
-                    isSelected: false,
-                    onTap: () {},
-                  ),
-                );
-              },
-            ),
+            if (character.domainLoadout.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  'No domain cards in loadout',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[400],
+                      ),
+                ),
+              )
+            else ...[
+              const SizedBox(height: 16),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final availableWidth = constraints.maxWidth;
+                  final crossAxisCount = availableWidth ~/ cardWidth;
+                  return MasonryGridView.count(
+                    crossAxisCount: crossAxisCount > 0 ? crossAxisCount : 1,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    itemCount: character.domainLoadout.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) => DomainCard(
+                      ability: character.domainLoadout[index],
+                      domains: character.domains,
+                      isSelected: false,
+                      onTap: () {},
+                    ),
+                  );
+                },
+              ),
+            ]
           ],
         ),
       ),

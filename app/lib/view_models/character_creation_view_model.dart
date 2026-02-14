@@ -645,8 +645,7 @@ class CharacterCreationViewModel extends ChangeNotifier {
 
   /// Add selected domain abilities (replaces existing abilities)
   void setDomainAbilities(List<DomainAbility> abilities) {
-    _character.domainAbilities.clear();
-    _character.domainAbilities.addAll(abilities);
+    _character.setDomainAbilities(abilities, fillLoadout: true);
     _stepCompleted[CharacterCreationStep.domainCards] = abilities.length == 2;
     _updateState();
   }

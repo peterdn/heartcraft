@@ -817,4 +817,19 @@ class GameDataService {
       _mergedCompendium?.experiences ?? [];
   Map<String, CompanionTemplate> get companionTemplates =>
       _mergedCompendium?.companionTemplates ?? {};
+
+  /// Get all domain abilities available for the given class,
+  /// optionally filtered by max level
+  List<DomainAbility> getAvailableAbilitiesForClass(
+    CharacterClass characterClass, {
+    int? maxLevel,
+  }) {
+    final allAbilities = domainAbilities;
+    final classDomainIds = characterClass.domains;
+    return allAbilities.where((a) {
+      final matchesDomain = classDomainIds.contains(a.domain);
+      final matchesLevel = maxLevel == null || a.level <= maxLevel;
+      return matchesDomain && matchesLevel;
+    }).toList();
+  }
 }

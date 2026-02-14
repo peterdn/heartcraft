@@ -30,6 +30,9 @@ import 'companion.dart';
 import '../services/game_data_service.dart';
 
 class Character {
+  // Constants
+  static const int maxDomainLoadoutSize = 5;
+
   String id;
   String name;
   String? pronouns;
@@ -71,8 +74,11 @@ class Character {
   // Portrait image path (relative to character directory)
   String? portraitPath;
 
-  // Domain cards
+  // All domain cards this character has access to, including loadout and vault
   List<DomainAbility> domainAbilities;
+
+  // Domain cards in the character's current loadout (max 5)
+  List<DomainAbility> domainLoadout;
 
   // Companion (optional, for certain subclasses)
   Companion? companion;
@@ -128,6 +134,7 @@ class Character {
     required this.connections,
     this.portraitPath,
     required this.domainAbilities,
+    required this.domainLoadout,
     this.companion,
     required this.inventory,
     this.equippedArmor,
@@ -174,6 +181,7 @@ class Character {
       experiences: [],
       connections: [],
       domainAbilities: [],
+      domainLoadout: [],
       inventory: [],
       inventoryWeapons: [],
       notes: '',
@@ -425,6 +433,21 @@ class Character {
       }
     }
 
+    // Domain loadout, linked to compendium by ID
+    final domainLoadoutElement = characterElement.getElement('domainLoadout');
+    List<DomainAbility> domainLoadout = [];
+    if (domainLoadoutElement != null) {
+      for (var abilityElement
+          in domainLoadoutElement.findElements('domainAbility')) {
+        final domainAbilityID = abilityElement.getAttribute('id');
+        domainLoadout.add(gameDataService.domainAbilities
+            .firstWhere((da) => da.id == domainAbilityID));
+      }
+    } else {
+      // Default to first 5 domain abilities in loadout if not specified
+      domainLoadout = domainAbilities.take(maxDomainLoadoutSize).toList();
+    }
+
     // Inventory
     final inventoryElement = characterElement.getElement('inventory');
     List<Item> inventory = [];
@@ -594,6 +617,7 @@ class Character {
         connections: connections,
         portraitPath: portraitPath,
         domainAbilities: domainAbilities,
+        domainLoadout: domainLoadout,
         companion: companion,
         inventory: inventory,
         equippedArmor: equippedArmor,
@@ -773,6 +797,15 @@ class Character {
       // Domain abilities
       builder.element('domainAbilities', nest: () {
         for (var domainAbility in domainAbilities) {
+          builder.element('domainAbility', nest: () {
+            builder.attribute('id', domainAbility.id);
+          });
+        }
+      });
+
+      // Domain loadout
+      builder.element('domainLoadout', nest: () {
+        for (var domainAbility in domainLoadout) {
           builder.element('domainAbility', nest: () {
             builder.attribute('id', domainAbility.id);
           });
@@ -1171,6 +1204,38 @@ class Character {
       if (feature.ruleOverrides != null) {
         ruleOverrides.merge(feature.ruleOverrides!);
       }
+    }
+  }
+
+  void setDomainAbilities(List<DomainAbility> domainAbilities,
+      {bool fillLoadout = false}) {
+    this.domainAbilities = domainAbilities;
+
+    // Remove cards from loadout that are no longer in domainAbilities
+    domainLoadout.removeWhere(
+        (ability) => !domainAbilities.any((da) => da.id == ability.id));
+
+    if (fillLoadout) {
+      // Fill loadout with domain abilities up to max size
+      for (var ability in domainAbilities) {
+        if (domainLoadout.length >= Character.maxDomainLoadoutSize) {
+          break;
+        }
+        if (!domainLoadout.any((da) => da.id == ability.id)) {
+          domainLoadout.add(ability);
+        }
+      }
+    }
+  }
+
+  void addDomainAbility(DomainAbility ability) {
+    if (!domainAbilities.any((da) => da.id == ability.id)) {
+      domainAbilities.add(ability);
+    }
+
+    if (domainLoadout.length < Character.maxDomainLoadoutSize &&
+        !domainLoadout.any((da) => da.id == ability.id)) {
+      domainLoadout.add(ability);
     }
   }
 }

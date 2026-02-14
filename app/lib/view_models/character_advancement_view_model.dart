@@ -250,7 +250,7 @@ class CharacterAdvancementViewModel extends ChangeNotifier {
 
     // Add level achievement domain card
     if (_levelAchievementDomainCard != null) {
-      _character!.domainAbilities.add(_levelAchievementDomainCard!);
+      _character!.addDomainAbility(_levelAchievementDomainCard!);
     }
 
     // Add new experience
@@ -268,7 +268,7 @@ class CharacterAdvancementViewModel extends ChangeNotifier {
 
     // Add additional domain card
     if (_additionalDomainCard != null) {
-      _character!.domainAbilities.add(_additionalDomainCard!);
+      _character!.addDomainAbility(_additionalDomainCard!);
     }
 
     // Apply trait increases
